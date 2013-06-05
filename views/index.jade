@@ -1,0 +1,14 @@
+!!! 5
+html
+  head
+    meta(charset="UTF-8")
+    title 七日网
+    link(rel='stylesheet'
+        href='/stylesheets/style.css')
+  body
+    h1 七日网
+    p #{userId}
+    ul
+      each page in pages
+        li.item(id='item_'+page.index)
+          a.art(href=page.id)=page.title

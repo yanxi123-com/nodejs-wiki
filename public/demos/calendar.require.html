@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Demo - Calendar</title>
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.css" />
+    <link type="text/css" href="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.min.css" rel="stylesheet" /> 
+    <link type="text/css" href="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.min.css" rel="stylesheet" /> 
+    <link type="text/css" href="http://dev.jtsage.com/jQM-DateBox/css/demos.css" rel="stylesheet" /> 
+
+    <!--script type="text/javascript" src="/demos/calendar.js"></script-->
+    <script src="/javascripts/require.min.js" data-main="/demos/calendar-main" defer async="true"></script>
+   
+<style>
+    .ui-input-datebox {display:none}
+    .ui-body-c {border:0; margin:0 auto; padding:0}
+</style>
+</head>
+<body>
+   
+<div data-role="content" class="jqm-content"> 
+<h1>Calendar Demo</h1>
+
+<label for="mydate">Some Date</label>
+<input style="visibility:hidden" name="mydate" id="mydate" type="date" data-role="datebox"/>
+
+<ul id="events">
+    
+</ul>
+
+</div><!--/content-->
+
+<div data-role="footer" style="overflow:hidden;">
+    <div data-role="navbar">
+        <ul>
+            <li><a href="./calendar.html">June</a></li>
+            <li><a href="./calendar-list.html">List</a></li>
+        </ul>
+    </div><!-- /navbar -->
+</div><!-- /footer -->
+</body>
+</html>
+

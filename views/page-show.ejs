@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="七日, 个人, 知识管理, 维基, 百科, wiki" />
+
+<title><%=page.title%></title>
+
+<% include include/inhead %>
+</head>
+<body>
+
+<div data-role="header">
+    <h1><%= page.title %></h1>
+    <% if(page.rootId) { %>
+        <a href="/page/<%= page.rootId %>" data-icon="home" data-iconpos="notext">首页</a>
+    <% } %>
+    <% if(visitor && visitor.id == page.userId) { %>
+        <a href="#popupMenu" data-rel="popup" data-icon="bars" class="ui-btn-right" data-iconpos="notext">选项</a>
+    <% } %>
+
+</div>
+   
+<div data-role="content" class="jqm-content">
+    
+    <% if (page.id=='51aed8e356beb4212b000002' && !visitor) { %>
+        <!--首页 && 未登录-->
+        <% include include/login %>
+    <% } %>
+
+    <%- page.contentHtml %>
+
+<div class="footLinks">
+    <% if(parentPage && parentPage.id) { %>
+       <div id="parentPage">父页面</div>
+       <ul>
+          <li><a href="/page/<%= parentPage.id %>"><%= parentPage.title %></a></li>
+       </ul>
+    <% } %>
+
+    <% if(brotherPages.length > 0) { %>
+    <div id="brotherPages">同级页面</div>
+    <ul class="sortable" id="<%= parentPage.id %>">
+        <% brotherPages.forEach(function(p) { %>
+           <li id="<%= p.id %>">
+                <% if (p.id != page.id) { %>
+                    <a href="/page/<%= p.id %>"><%= p.title %></a>
+                <% } else { %>
+                    <%= p.title %>
+                <% } %>
+          </li>
+        <% }) %>
+    </ul>
+    <% } %>
+
+    <% if(childPages.length > 0) { %>
+    <div id="childPages">子页面</div>
+    <ul class="sortable" id="<%= page.id %>">
+        <% childPages.forEach(function(p) { %>
+           <li id="<%= p.id %>"><a href="/page/<%= p.id %>"><%= p.title %></a></li>
+        <% }) %>
+    </ul>
+    <% } %>
+    <br/>
+    本页创建于<%= page.addDateFormatted %>
+</div>
+
+    <% include include/content-footer %>
+</div><!--/content-->
+
+<div data-role="footer" data-id="foo1" data-position="fixed" data-tap-toggle="false">
+    <div data-role="navbar">
+        <ul>
+            <li><a href="/page/<%= page.rootId || page.id %>">首页</a></li>
+            <% if(parentPage && parentPage.id) { %>
+                <li><a href="/page/<%= parentPage.id %>">父页面</a></li>
+            <% } else { %>
+                <li><button disabled="" data-corners="false">父页面</button></li>
+            <% } %>
+            <% if(brotherPages.length <= 1 ) { %>
+                <li><button disabled="" data-corners="false">同级</button></li>
+            <% } else { %>
+                <li><a data-rel="popup" href="#popupBrotherPages">同级</a></li>
+            <% } %>
+            <% if(childPages.length == 0 ) { %>
+                <li><button disabled="" data-corners="false">子页面</button></li>
+            <% } else { %>
+                <li><a data-rel="popup" href="#popupChildPages">子页面</a></li>
+            <% } %>
+            <li><a href="/user/setting.html">设置</a></li>
+        </ul>
+    </div><!-- /navbar -->
+</div><!-- /footer -->
+
+    <div data-role="popup" id="popupBrotherPages" data-theme="a">
+        <ul data-role="listview" data-inset="true" style="min-width:210px;" data-theme="c">
+            <% brotherPages.forEach(function(p) { %>
+                <% if (p.id != page.id) { %>
+                   <li><a href="/page/<%= p.id %>"><%= p.title %></a></li>
+                <% } %>
+            <% }) %>
+        </ul>
+    </div>
+
+    <div data-role="popup" id="popupChildPages" data-theme="a">
+        <ul data-role="listview" data-inset="true" style="min-width:210px;" data-theme="c">
+            <% childPages.forEach(function(page) { %>
+               <li><a href="/page/<%= page.id %>"><%= page.title %></a></li>
+            <% }) %>
+        </ul>
+    </div>
+<% if(visitor && visitor.id == page.userId) { %>
+    <div data-role="popup" id="popupMenu" data-theme="a">
+        <ul data-role="listview" data-inset="true" style="min-width:210px;" data-theme="c">
+            <li data-icon="edit"><a href="/page/<%= page.id %>/edit">修改</a></li>
+            <li data-icon="add"><a href="/page/<%= page.id %>/add.html">添加子页面</a></li>
+            <% if(page.rootId) { %>
+              <li data-icon="delete"><a data-position-to="window" href="#popupDeletePageConfirm" data-rel="popup">删除</a></li>
+            <% } %>
+        </ul>
+    </div>
+    <% if(page.rootId) { %>
+        <div data-role="popup" id="popupDeletePageConfirm" data-overlay-theme="a" data-theme="a" class="ui-corner-all" style="width:200">
+            <div data-role="header" data-theme="a" class="ui-corner-top">
+                <h1>删除此页面？</h1>
+            </div>
+            <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+                <h3 class="ui-title">确认要删除此页面吗？</h3>
+                <p>此操作无法恢复</p>
+                <a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">取消</a>
+                <a href="#" data-role="button" data-inline="true" data-transition="flow" data-theme="b" class="deletePage"
+                    data-page-id="<%- page.id %>" data-parent-id="<%- parentPage.id %>">删除</a>
+            </div>
+        </div>
+    <% } %>
+<% } %>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-100604-11']);
+  _gaq.push(['_setDomainName', 'qiri.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</body>
+</html>

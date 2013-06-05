@@ -1,0 +1,30 @@
+<h3>登陆知识管理系统</h3>
+<a href="#popupLogin" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-icon="check" data-theme="c" data-transition="pop">登 陆</a>
+
+<a href="#popupRegister" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-icon="plus" data-theme="c" data-transition="pop">注 册</a>
+<div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all" data-overlay-theme="a">
+    <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+        <div style="padding:10px 20px;">
+          <h3>请登录</h3>
+          <label for="un" class="ui-hidden-accessible">Email:</label>
+          <input type="text" name="email" value="" placeholder="Email" data-theme="a">
+          <label for="pw" class="ui-hidden-accessible">密码:</label>
+          <input type="password" name="password" value="" placeholder="密码" data-theme="a">
+          <a type="submit" data-theme="a" data-icon="check">登 陆</a>
+        </div>
+</div>
+
+<div data-role="popup" id="popupRegister" data-theme="a" class="ui-corner-all" data-overlay-theme="a">
+<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+        <div style="padding:10px 20px;">
+          <h3>快速注册</h3>
+          <label for="un" class="ui-hidden-accessible">Email:</label>
+          <input type="text" name="email" id="un" value="" placeholder="Email" data-theme="a">
+          <label for="pw" class="ui-hidden-accessible">密码:</label>
+          <input type="password" name="pass" value="" placeholder="密码" data-theme="a">
+          <label for="pw2" class="ui-hidden-accessible">密码2:</label>
+          <input type="password" name="pass2" value="" placeholder="重输密码" data-theme="a">
+          <a type="submit" data-theme="a" data-icon="check">确 认</a>
+        </div>
+</div>
+
