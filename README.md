@@ -1,2 +1,2 @@
-qiri
+qiri.com
 ====
