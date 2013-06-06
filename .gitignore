@@ -7,7 +7,6 @@
 *.gz
 *.swp
 config.js
-config.mine.js
 
 pids
 logs
