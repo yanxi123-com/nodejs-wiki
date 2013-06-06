@@ -37,4 +37,5 @@
  - 安装 node.js 环境
  - 下载本项目
  - 进入项目目录，运行 `npm install`
-
+ - 创建 logs 文件夹，用于存放log
+ - 启动node.js `node app.js`

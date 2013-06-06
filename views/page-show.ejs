@@ -24,7 +24,7 @@
    
 <div data-role="content" class="jqm-content">
     
-    <% if (page.id=='51aed8e356beb4212b000002' && !visitor) { %>
+    <% if (isDefaultPage && !visitor) { %>
         <!--首页 && 未登录-->
         <% include include/login %>
     <% } %>

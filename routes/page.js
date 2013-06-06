@@ -5,12 +5,13 @@
  * MIT Licensed
  */
  
-var _ = require('underscore');
-var _s = require('underscore.string');
-var mongoUtils = require('../model/mongo-utils.js');
-var wiki2html = require('../lib/wiki2html.js');
-var Page = mongoUtils.getSchema('Page');
-var User = mongoUtils.getSchema('User');
+var _ = require('underscore'),
+    _s = require('underscore.string'),
+    config = require('./config'),
+    mongoUtils = require('../model/mongo-utils.js'),
+    wiki2html = require('../lib/wiki2html.js'),
+    Page = mongoUtils.getSchema('Page'),
+    User = mongoUtils.getSchema('User');
 
 var ready = function() {
   return _(arguments).every(function(arg, index) {
@@ -55,7 +56,8 @@ exports.show = function(req, res) {
           page: page,
           parentPage: parentPage,
           brotherPages: brotherPages,
-          childPages: childPages
+          childPages: childPages,
+          isDefaultPage: page.id == config.get('defaultPage')
       });
     }
   };

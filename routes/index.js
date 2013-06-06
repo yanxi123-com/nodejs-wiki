@@ -5,7 +5,8 @@
  * MIT Licensed
  */
  
-var _ = require('underscore');
+var _ = require('underscore'),
+    config = require('./config');
 var mongoUtils = require('../model/mongo-utils.js');
 var Page = mongoUtils.getSchema('Page');
 
@@ -16,7 +17,6 @@ exports.index = function(req, res) {
       res.redirect('/page/' + visitor.rootPageId);
       return;
   } else {
-      var defaultPage = '51aed8e356beb4212b000002';
-      res.redirect('/page/' + defaultPage);
+      res.redirect(config.get('defaultPage') || '/user/setting.html');
   }
 };

@@ -9,7 +9,8 @@ var config = {
     port: 3000,
     mongodb: "mongodb://localhost/qiri?poolSize=10",
     cookieSecret: "your secret for cookie",
-    pwdSecret: "your secret for pwd"
+    pwdSecret: "your secret for pwd",
+    defaultPage: "" // 目前无法通过页面创建默认页，只能通过手工操作数据库完成
 };
 
 exports.get = function(key) {
