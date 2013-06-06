@@ -5,6 +5,15 @@
 
 [官方网站](http://qiri.com/)
 
+### 安装指南
+ - 安装 mongodb 数据库
+ - 安装 node.js 环境
+ - 下载本项目
+ - 进入项目目录，运行 `npm install`
+ - 创建 logs 文件夹，用于存放log
+ - 更改 config.js 的相关配置
+ - 启动node.js `node app.js`
+
 ######特性
  - 移动设备支持良好，便于手机随时操作
  - 打开浏览器就能工作，手机和电脑通用
@@ -33,11 +42,3 @@
  - [Mongodb](http://www.mongodb.org/) 面向文档的数据库
  - [Mongoose](http://mongoosejs.com/) 用于node.js的API接口，访问数据库就像操作本地对象
 
-### 安装指南
- - 安装 mongodb 数据库
- - 安装 node.js 环境
- - 下载本项目
- - 进入项目目录，运行 `npm install`
- - 创建 logs 文件夹，用于存放log
- - 更改 config.js 的相关配置
- - 启动node.js `node app.js`
