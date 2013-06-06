@@ -6,7 +6,8 @@
  */
  
 var mongoose = require('mongoose');
-var conn = mongoose.createConnection('mongodb://localhost/qiri?poolSize=10');
+var config = require('../config');
+var conn = mongoose.createConnection(config.get('mongodb'));
 
 var schemas = {
   User: {

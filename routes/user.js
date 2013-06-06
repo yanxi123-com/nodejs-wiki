@@ -6,13 +6,15 @@
  */
  
 var _s = require('underscore.string');
+var config = require('../config');
 var crypto = require('crypto');
 var mongoUtils = require('../model/mongo-utils.js');
 var User = mongoUtils.getSchema('User');
 var Page = mongoUtils.getSchema('Page');
 
 var getPwdMd5 = function(password) {
-    return crypto.createHash('md5').update(password || "").digest('hex');
+    var pwd = password + config.get('pwdSecret'); 
+    return crypto.createHash('md5').update(pwd).digest('hex');
 };
 
 var setLoginCookie = function(res, userId) {

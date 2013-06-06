@@ -6,6 +6,7 @@
  */
  
 var express = require('express')
+  , config = require('./config')
   , routes = require('./routes')
   , user = require('./routes/user')
   , page = require('./routes/page')
@@ -18,10 +19,9 @@ var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
 var app = express();
 
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', config.get('port'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
-//app.set('view engine', 'jade');
 app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
 
 // logger
@@ -30,7 +30,7 @@ var format = ":date :method :url :status :res[content-length] - :response-time m
 app.use(express.logger({stream: accessLogfile, format: format}));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.cookieParser('==insert yours=='));
+app.use(express.cookieParser(config.get('cookieSecret')));
 app.use(app.router);
 app.use(require('stylus').middleware(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: 1000 * 3600 * 24 * 30}));
