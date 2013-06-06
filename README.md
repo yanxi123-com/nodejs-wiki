@@ -3,9 +3,11 @@
 
 本系统构建在node.js上，是面向个人的知识管理系统，可以随时添加、编辑和查看你的页面，不断积累各方面知识。
 
-作为一个完全开源的 node.js 项目，希望和对 node.js 感兴趣的朋友共同来完善。
+作为一个完全开源的 node.js 项目，希望对 node.js 感兴趣的朋友可以积极贡献，共同来完善。
 
-[官方网站](http://qiri.com/)
+作者微博: http://weibo.com/yanxicom
+
+官方网站: http://qiri.com/
 
 ### 安装指南
  - 安装 mongodb 数据库
