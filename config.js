@@ -10,7 +10,7 @@ var config = {
     mongodb: "mongodb://localhost/qiri?poolSize=10",
     cookieSecret: "your secret for cookie",
     pwdSecret: "your secret for pwd",
-    defaultPage: "" // 目前无法通过页面创建默认页，只能通过手工操作数据库完成
+    defaultPage: "" // 目前通过页面无法创建公开的页面，只能通过手工更新页面的 rootId 为空来创建
 };
 
 exports.get = function(key) {
