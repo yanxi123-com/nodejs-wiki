@@ -9,17 +9,6 @@
 
 官方网站: http://qiri.com/
 
-### 安装指南
- - 安装 mongodb 数据库
- - 安装 node.js 环境
- - 下载本项目 [最新版 zip 压缩包](https://github.com/yanxi-com/qiri/archive/master.zip)
- - 进入项目目录，运行 `npm install`
- - 创建 logs 文件夹，用于存放 log
- - 更改 config.js 的相关配置
- - 启动 node.js `node app.js`
-
-### 项目介绍
-
 ######特性
  - 移动设备支持良好，便于手机随时操作
  - 打开浏览器就能工作，手机和电脑通用
@@ -31,6 +20,23 @@
 ######示例
  - [七日官方网站](http://qiri.com/)
  - 用本系统录入的图书 [人性的弱点](http://qiri.com/page/51ae14a1ce68cc121f000001)
+
+### 安装指南
+ - 安装 mongodb 数据库
+ - 安装 node.js 环境
+ - 下载本项目 [最新版 zip 压缩包](https://github.com/yanxi-com/qiri/archive/master.zip)
+ - 进入项目目录，运行 `npm install`
+ - 创建 logs 文件夹，用于存放 log
+ - 更改 config.js 的相关配置
+ - 启动 node.js `node app.js`
+
+##### Mongodb 索引
+```js
+db.users.ensureIndex( { email: 1 }, {unique : true} );
+db.users.ensureIndex( { userId: 1 } );
+db.pages.ensureIndex( { parentId: 1 } );
+db.pages.ensureIndex( { parentId: 1, title: 1 }, {unique : true} );
+```
 
 ### 技术一览
 ###### 服务器端
