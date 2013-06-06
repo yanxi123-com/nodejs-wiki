@@ -57,7 +57,7 @@ exports.show = function(req, res) {
           parentPage: parentPage,
           brotherPages: brotherPages,
           childPages: childPages,
-          isDefaultPage: page.id == config.get('defaultPage')
+          isDefaultPage: ('/page/' + page.id) == config.get('defaultPage')
       });
     }
   };
