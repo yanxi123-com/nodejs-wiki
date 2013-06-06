@@ -8,7 +8,7 @@
 ### 安装指南
  - 安装 mongodb 数据库
  - 安装 node.js 环境
- - 下载本项目
+ - 下载本项目 https://github.com/yanxi-com/qiri/zipball/master
  - 进入项目目录，运行 `npm install`
  - 创建 logs 文件夹，用于存放log
  - 更改 config.js 的相关配置
