@@ -29,10 +29,9 @@ app.use(express.logger({stream: accessLogfile, format: format}));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser('==insert yours=='));
-//app.use(express.cookieSession());
 app.use(app.router);
 app.use(require('stylus').middleware(__dirname + '/public'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {maxAge: 1000 * 3600 * 24 * 30}));
 
 // development only
 if ('development' == app.get('env')) {

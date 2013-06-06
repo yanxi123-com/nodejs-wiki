@@ -8,12 +8,11 @@ requirejs.config({
         }
     },
     paths: {
-        jquery: "http://libs.baidu.com/jquery/2.0.0/jquery.min",
-        jqueryui: "http://libs.baidu.com/jqueryui/1.10.2/jquery-ui.min",
-        simpledialog2: "lib/jquery.mobile.simpledialog2.min",
-        jqm: "http://libs.baidu.com/jquerymobile/1.3.0/jquery.mobile-1.3.0.min",
-        json2: "http://libs.baidu.com/json/json2/json2",
-        underscore: "http://libs.baidu.com/underscore/1.3.3/underscore-min"
+        jquery: "/javascripts/lib/jquery-2.0.0.min",
+        jqueryui: "/javascripts/lib/jquery-ui-1.10.2.min",
+        jqm: "/javascripts/lib/jquery.mobile-1.3.0.min",
+        json2: "/javascripts/lib/json2",
+        underscore: "/javascripts/lib/underscore-1.3.3.min"
     }
 });
 
