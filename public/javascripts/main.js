@@ -1,3 +1,10 @@
+
+/*
+ * 七日知识管理系统
+ * Copyright(c) qiri.com <yanxi@yanxi.com>
+ * MIT Licensed
+ */
+ 
 requirejs.config({
     shim: {
         underscore: {

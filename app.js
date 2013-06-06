@@ -1,8 +1,10 @@
 
-/**
- * Module dependencies.
+/*
+ * 七日知识管理系统
+ * Copyright(c) qiri.com <yanxi@yanxi.com>
+ * MIT Licensed
  */
-
+ 
 var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')

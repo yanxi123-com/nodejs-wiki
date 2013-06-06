@@ -1,3 +1,10 @@
+
+/*
+ * 七日知识管理系统
+ * Copyright(c) qiri.com <yanxi@yanxi.com>
+ * MIT Licensed
+ */
+ 
 var _ = require('underscore');
 var _s = require('underscore.string');
 var mongoUtils = require('../model/mongo-utils.js');
