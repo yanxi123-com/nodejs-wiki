@@ -7,7 +7,7 @@
  
 var _ = require('underscore'),
     _s = require('underscore.string'),
-    config = require('./config'),
+    config = require('../config'),
     mongoUtils = require('../model/mongo-utils.js'),
     wiki2html = require('../lib/wiki2html.js'),
     Page = mongoUtils.getSchema('Page'),

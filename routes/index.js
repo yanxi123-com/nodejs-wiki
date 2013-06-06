@@ -6,7 +6,7 @@
  */
  
 var _ = require('underscore'),
-    config = require('./config');
+    config = require('../config');
 var mongoUtils = require('../model/mongo-utils.js');
 var Page = mongoUtils.getSchema('Page');
 

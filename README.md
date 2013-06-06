@@ -34,8 +34,10 @@
  - [Mongoose](http://mongoosejs.com/) 用于node.js的API接口，访问数据库就像操作本地对象
 
 ### 安装指南
+ - 安装 mongodb 数据库
  - 安装 node.js 环境
  - 下载本项目
  - 进入项目目录，运行 `npm install`
  - 创建 logs 文件夹，用于存放log
+ - 更改 config.js 的相关配置
  - 启动node.js `node app.js`
