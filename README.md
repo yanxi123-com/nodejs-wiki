@@ -12,7 +12,7 @@
  - 进入项目目录，运行 `npm install`
  - 创建 logs 文件夹，用于存放log
  - 更改 config.js 的相关配置
- - 启动node.js `node app.js`
+ - 启动 node.js `node app.js`
 
 ######特性
  - 移动设备支持良好，便于手机随时操作
