@@ -13,7 +13,6 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , fs = require('fs')
-  , mongoose = require('mongoose');
 var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
 
 var app = express();
