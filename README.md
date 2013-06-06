@@ -33,7 +33,7 @@
 ##### Mongodb 索引
 ```js
 db.users.ensureIndex( { email: 1 }, {unique : true} );
-db.page.ensureIndex( { userId: 1 } );
+db.pages.ensureIndex( { userId: 1 } );
 db.pages.ensureIndex( { parentId: 1 } );
 db.pages.ensureIndex( { parentId: 1, title: 1 }, {unique : true} );
 ```
