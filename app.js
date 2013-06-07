@@ -67,7 +67,7 @@ app.all('/page/:rootPageId/setting.html', user.setting);
 // 404
 app.use(function(req, res, next){
   res.status(404);
-  res.render('error', {title: '页面不存在', visitor: res.visitor});
+  res.render('error', {title: '页面不存在', visitor: req.visitor});
 });
 
 //console.log(app.routes);
