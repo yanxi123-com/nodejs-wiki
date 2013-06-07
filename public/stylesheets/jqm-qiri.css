@@ -2,6 +2,13 @@ body {display:none } /* 延时加载 */
 ul, ol {padding-left:25px}
 p, textarea {line-height:150%}
 
+pre {
+  padding: 1em;
+  border: 1px dashed #2f6fab;
+  color: black;
+  background-color: #f9f9f9;
+}
+
 .ui-body-c .ui-link {
   font-weight:normal;
 }
