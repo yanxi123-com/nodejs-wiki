@@ -47,7 +47,7 @@ exports.show = function(req, res) {
   var render = function(err, status) {
     if (err) {
         res.status(status || 500);
-        res.render('error', {title: err});
+        res.render('error', {title: err, visitor: visitor});
         return;
     }
     if (ready(page, parentPage, brotherPages, childPages)) {
