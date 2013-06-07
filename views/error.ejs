@@ -15,16 +15,18 @@
     <a data-ajax="false" href="/" data-icon="home" data-iconpos="notext">首页</a>
 </div>
    
-  <div data-role="content" class="jqm-content"> 
+<div data-role="content" class="jqm-content"> 
     <h1><%= title %></h1>
 
-<a href="#" data-rel="back" data-role="button" data-icon="arrow-l" data-iconpos="left" data-inline="true">返回</a>
+  <a href="#" data-rel="back" data-role="button" data-icon="arrow-l" data-iconpos="left" data-inline="true">返回</a>
+  
+  <% if(!visitor) { %>
+      <% include include/login %>
+  <% } %>
+    
+  <% include include/about %>
 
-<% if(!visitor) { %>
-    <% include include/login %>
-<% } %>
-
-<% include include/content-footer %>
+  <% include include/content-footer %>
 </div><!--/content-->
 
 

@@ -64,6 +64,12 @@ app.get('/page/:id', page.show);
 app.get('/page/:id/edit', page.edit);
 app.all('/page/:rootPageId/setting.html', user.setting);
 
+// 404
+app.use(function(req, res, next){
+  res.status(404);
+  res.render('error', {title: '页面不存在', visitor: res.visitor});
+});
+
 //console.log(app.routes);
 http.createServer(app).listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
