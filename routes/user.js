@@ -18,7 +18,7 @@ var getPwdMd5 = function(password) {
 };
 
 var setLoginCookie = function(res, userId) {
-  res.cookie('userId', userId, { maxAge: 24 * 3600 * 1000, signed: true})
+  res.cookie('userId', userId, { maxAge: 30 * 24 * 3600 * 1000, signed: true})
 }
 
 exports.login = function(req, res) {
