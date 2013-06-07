@@ -313,13 +313,13 @@ exports.edit = function(req, res) {
       if(err) console.log(err);
       if(err || !doc) {
         res.status(404);
-        res.render('error', {title: '页面不存在'});
+        res.render('error', {title: '页面不存在', visitor: visitor});
         return;
       }
       var pageUserId = doc.userId;
       if (pageUserId != visitor.id) {
         res.status(403);
-        res.render('error', {title: '没有权限'});
+        res.render('error', {title: '没有权限', visitor: visitor});
         return;
       }
       res.render('page-edit', {page: doc});
