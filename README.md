@@ -27,7 +27,7 @@
  - 下载本项目 [最新版 zip 压缩包](https://github.com/yanxi-com/qiri/archive/master.zip)
  - 进入项目目录，运行 `npm install`
  - 创建 logs 文件夹，用于存放 log
- - 将 config.original.js 并重命名为 config.js, 并更新相关配置
+ - 复制 config.original.js 到 config.js, 并更新相关配置
  - 启动 node.js `node app.js`
 
 ##### Mongodb 索引
