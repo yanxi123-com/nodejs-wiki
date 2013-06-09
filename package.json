@@ -16,6 +16,6 @@
     "underscore.string": "*",
     "connect": "*",
     "passport": "*",
-    "passport-qq": "*"
+    "passport-oauth": "*"
   }
 }

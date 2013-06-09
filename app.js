@@ -7,110 +7,78 @@
  
 var express = require('express')
   , config = require('./config')
-  , routes = require('./routes')
-  , user = require('./routes/user')
-  , page = require('./routes/page')
   , http = require('http')
   , path = require('path')
   , fs = require('fs')
-  , passport = require('passport')
-  , QqStrategy = require('passport-qq').Strategy
+  , passport = require('./model/passport-qiri').passport
+  , routes = {
+    index: require('./routes').index,
+    user: require('./routes/user'),
+    page: require('./routes/page')
+  };
 var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
-
-var qqLogin = config.get('qqLogin');
-var qqLoginEnabled = qqLogin && qqLogin.enabled;
-if (qqLoginEnabled) {
-  passport.use(new QqStrategy({
-      clientID: qqLogin.appKey,
-      clientSecret: qqLogin.appSecret,
-      callbackURL: qqLogin.callback
-    }, 
-    function(accessToken, refreshToken, profile, done) {
-      // asynchronous verification, for effect...
-      process.nextTick(function () {
-        // To keep the example simple, the user's qq profile is returned to
-        // represent the logged-in user.  In a typical application, you would want
-        // to associate the qq account with a user record in your database,
-        // and return that user instead.
-        return done(null, profile);
-      });
-    })
-  );
-}
 
 var app = express();
 
-// all environments
-app.set('port', config.get('port'));
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
+app.configure(function() {
+  app.set('port', config.get('port'));
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'ejs');
+  app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
+  app.use(express.logger({
+    stream: accessLogfile,
+    // http://www.senchalabs.org/connect/middleware-logger.html
+    format: ":date :method :url :status :res[content-length] - :response-time ms :user-agent"
+  }));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(express.cookieParser(config.get('cookieSecret')));
 
-// logger
-// http://www.senchalabs.org/connect/middleware-logger.html
-var format = ":date :method :url :status :res[content-length] - :response-time ms :user-agent";
-app.use(express.logger({stream: accessLogfile, format: format}));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(express.cookieParser(config.get('cookieSecret')));
-app.use(app.router);
-app.use(require('stylus').middleware(__dirname + '/public'));
-app.use(express.static(path.join(__dirname, 'public'), {maxAge: 1000 * 3600 * 24 * 30}));
+  app.use(passport.initialize());
 
+  app.use(app.router);
+  app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
+  app.use(require('stylus').middleware(__dirname + '/public'));
 
-passport.serializeUser(function(user, done) {
-  done(null, user);
+  if ('development' == app.get('env')) {
+    app.use(express.errorHandler());
+  }
 });
-
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
-app.use(passport.initialize());
-app.use(passport.session());
-
-// development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
 
 // user
-app.all('/user/register.json', user.register);
-app.all('/user/login.json', user.login);
-app.all('/user/logout.json', user.logout);
+app.all('/user/register.json', routes.user.register);
+app.all('/user/login.json', routes.user.login);
+app.all('/user/logout.json', routes.user.logout);
 
 // check login
-app.all("*", user.loadUser);
+app.all("*", routes.user.loadUser);
 
 // user
-app.all('/user/setting.html', user.setting);
+app.all('/user/setting.html', routes.user.setting);
 
 // index
 app.get('/', routes.index);
 
 // page
-app.get('/page/add.html', page.add);
-app.get('/page/:id/add.html', page.add);
-app.all('/page/add.json', page.create);
-app.all('/page/remove.json', page.remove);
-app.all('/page/update.json', page.update);
-app.all('/page/sort.json', page.sort);
-app.get('/page/:id', page.show);
-app.get('/page/:id/edit', page.edit);
-app.all('/page/:rootPageId/setting.html', user.setting);
+app.get('/page/add.html', routes.page.add);
+app.get('/page/:id/add.html', routes.page.add);
+app.all('/page/add.json', routes.page.create);
+app.all('/page/remove.json', routes.page.remove);
+app.all('/page/update.json', routes.page.update);
+app.all('/page/sort.json', routes.page.sort);
+app.get('/page/:id', routes.page.show);
+app.get('/page/:id/edit', routes.page.edit);
+app.all('/page/:rootPageId/setting.html', routes.user.setting);
 
 // qq
-app.get('/auth/qq',
-  passport.authenticate('qq'),
-  function(req, res){
-// The request will be redirected to qq for authentication, so this
-// function will not be called.
-});
-app.get('/auth/qq/callback', 
-  passport.authenticate('qq', { failureRedirect: '/login' }),
-  function(req, res) {
+app.get('/auth/qq', passport.authenticate('qq'));
+app.get('/auth/qq/callback', function(req, res, next) {
+  passport.authenticate('qq', function(err, user, info) {
+    if (err) return next(err);
+    routes.user.setLoginCookie(res, user.id);     
     res.redirect('/');
-  }
-);
+  })(req, res, next);
+}); 
 
 // 404
 app.use(function(req, res, next){

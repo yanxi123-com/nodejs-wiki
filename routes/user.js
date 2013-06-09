@@ -21,6 +21,32 @@ var setLoginCookie = function(res, userId) {
   res.cookie('userId', userId, { maxAge: 30 * 24 * 3600 * 1000, signed: true})
 }
 
+var createRootPage = function(visitor, done) {
+    done = done || function(err) {console.log(err)};
+    Page.create({
+        userId: visitor.id,
+        parentId: visitor.id,
+        title: "首页",
+        content: "点击右上角图标，可以选择编辑本页面，增加新页面。"
+    }, function(err, page) {
+        if (err) {
+          done(err);
+        } else {
+            User.findOneAndUpdate({
+                _id: visitor.id,
+              }, {
+                $set: {rootPageId: page.id}
+              }, function(err){
+                done(err, page);
+              }
+            );
+        }
+    });
+};
+
+exports.setLoginCookie = setLoginCookie;
+exports.createRootPage = createRootPage;
+
 exports.login = function(req, res) {
   var email = req.param('email') || "";
   var password = req.param('password') || "";
@@ -62,35 +88,6 @@ exports.register = function(req, res) {
     return;
   }
 
-  var createRootPage = function(visitor) {
-      Page.create({
-          userId: visitor.id,
-          parentId: visitor.id,
-          title: "首页",
-          content: "点击右上角图标，可以选择编辑本页面，增加新页面。"
-      }, function(err, page) {
-          mongoUtils.handleErr(err);
-          if (err) {
-            res.json({isOk: 0});
-          } else {
-              User.findOneAndUpdate({
-                  _id: visitor.id,
-                }, {
-                  $set: {rootPageId: page.id}
-                }, function(err){
-                    mongoUtils.handleErr(err);
-                    if (err) {
-                      res.json({isOk: 0});
-                    } else {
-                        setLoginCookie(res, visitor.id);
-                        res.json({isOk: 1, rootPageId: page.id});
-                    }
-                }
-              );
-          }
-      });
-  };
-
   User.findOne({
       email: email,
     },
@@ -109,7 +106,15 @@ exports.register = function(req, res) {
         }, function(err, user) {
           mongoUtils.handleErr(err);
           if(!err) {
-            createRootPage(user);
+            createRootPage(user, function(err, page) {
+              if (err) {
+                mongoUtils.handleErr(err);
+                res.json({isOk: 0});
+              } else {
+                setLoginCookie(res, user.id);
+                res.json({isOk: 1, rootPageId: page.id});
+              }
+            });
           }
         });
       }

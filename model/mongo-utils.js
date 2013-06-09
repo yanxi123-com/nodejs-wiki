@@ -12,6 +12,8 @@ var conn = mongoose.createConnection(config.get('mongodb'));
 var schemas = {
   User: {
     email: String,
+    qqUid: String,  // used for qq connect login
+    weiboUid: String, // used for weibo connect login
     passwordMd5: String,
     rootPageId: String,
     addDate: { type: Date, default: Date.now }
