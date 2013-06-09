@@ -14,8 +14,29 @@ var express = require('express')
   , path = require('path')
   , fs = require('fs')
   , passport = require('passport')
-  , qqStrategy = require('passport-qq').Strategy
+  , QqStrategy = require('passport-qq').Strategy
 var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
+
+var qqLogin = config.get('qqLogin');
+var qqLoginEnabled = qqLogin && qqLogin.enabled;
+if (qqLoginEnabled) {
+  passport.use(new QqStrategy({
+      clientID: qqLogin.appKey,
+      clientSecret: qqLogin.appSecret,
+      callbackURL: qqLogin.callback
+    }, 
+    function(accessToken, refreshToken, profile, done) {
+      // asynchronous verification, for effect...
+      process.nextTick(function () {
+        // To keep the example simple, the user's qq profile is returned to
+        // represent the logged-in user.  In a typical application, you would want
+        // to associate the qq account with a user record in your database,
+        // and return that user instead.
+        return done(null, profile);
+      });
+    })
+  );
+}
 
 var app = express();
 
@@ -35,6 +56,17 @@ app.use(express.cookieParser(config.get('cookieSecret')));
 app.use(app.router);
 app.use(require('stylus').middleware(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: 1000 * 3600 * 24 * 30}));
+
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+app.use(passport.initialize());
+app.use(passport.session());
 
 // development only
 if ('development' == app.get('env')) {
@@ -65,6 +97,20 @@ app.all('/page/sort.json', page.sort);
 app.get('/page/:id', page.show);
 app.get('/page/:id/edit', page.edit);
 app.all('/page/:rootPageId/setting.html', user.setting);
+
+// qq
+app.get('/auth/qq',
+  passport.authenticate('qq'),
+  function(req, res){
+// The request will be redirected to qq for authentication, so this
+// function will not be called.
+});
+app.get('/auth/qq/callback', 
+  passport.authenticate('qq', { failureRedirect: '/login' }),
+  function(req, res) {
+    res.redirect('/');
+  }
+);
 
 // 404
 app.use(function(req, res, next){
