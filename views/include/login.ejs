@@ -28,8 +28,10 @@
         </div>
 </div>
 
+<% if(config && config.get('qqLogin') && config.get('qqLogin').enabled) { %>
 <div class="share-link">
   <br/>
   <a data-ajax="false" href="/auth/qq" class="qq">QQ登陆</a>
   <br />
 </div>
+<% } %>

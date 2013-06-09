@@ -5,12 +5,12 @@
  * MIT Licensed
  */
  
-var _s = require('underscore.string');
-var config = require('../config');
-var crypto = require('crypto');
-var mongoUtils = require('../model/mongo-utils.js');
-var User = mongoUtils.getSchema('User');
-var Page = mongoUtils.getSchema('Page');
+var _s = require('underscore.string')
+  , config = require('../config')
+  , crypto = require('crypto')
+  , mongoUtils = require('../model/mongo-utils.js')
+  , User = mongoUtils.getSchema('User')
+  , Page = mongoUtils.getSchema('Page');
 
 var getPwdMd5 = function(password) {
     var pwd = password + config.get('pwdSecret'); 
@@ -126,7 +126,8 @@ exports.setting = function(req, res) {
   var visitor = req.visitor;
 
   res.render('user-setting', {
-    visitor: visitor
+    visitor: visitor,
+    config: config
   });
 }
 

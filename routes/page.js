@@ -52,6 +52,7 @@ exports.show = function(req, res) {
     }
     if (ready(page, parentPage, brotherPages, childPages)) {
       res.render('page-show', {
+          config: config,
           visitor: visitor,
           page: page,
           parentPage: parentPage,
