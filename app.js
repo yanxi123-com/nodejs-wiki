@@ -13,6 +13,8 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , fs = require('fs')
+  , passport = require('passport')
+  , qqStrategy = require('passport-qq').Strategy
 var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
 
 var app = express();

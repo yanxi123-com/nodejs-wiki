@@ -14,6 +14,8 @@
     "mongoose": "*",
     "underscore": "*",
     "underscore.string": "*",
-    "connect": "*"
+    "connect": "*",
+    "passport": "*",
+    "passport-qq": "*"
   }
 }
