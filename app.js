@@ -22,6 +22,7 @@ var app = express();
 
 app.configure(function() {
   app.set('port', config.get('port'));
+  app.set('env', config.get('env'));
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
@@ -39,10 +40,10 @@ app.configure(function() {
   app.use(app.router);
   app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
   app.use(require('stylus').middleware(__dirname + '/public'));
+});
 
-  if ('development' == app.get('env')) {
-    app.use(express.errorHandler());
-  }
+app.configure('development', function() {
+  app.use(express.errorHandler());
 });
 
 // user
@@ -83,7 +84,11 @@ app.get('/auth/qq/callback', function(req, res, next) {
 // 404
 app.use(function(req, res, next){
   res.status(404);
-  res.render('error', {title: '页面不存在', visitor: req.visitor, config: config});
+  res.render('error', {title: '页面不存在', visitor: req.visitor});
+});
+
+app.locals({
+  config: config
 });
 
 //console.log(app.routes);

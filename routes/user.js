@@ -126,10 +126,9 @@ exports.setting = function(req, res) {
   var visitor = req.visitor;
 
   res.render('user-setting', {
-    visitor: visitor,
-    config: config
+    visitor: visitor
   });
-}
+};
 
 exports.loadUser = function(req, res, next) {
   var userId = req.signedCookies.userId;

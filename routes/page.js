@@ -39,7 +39,7 @@ var simpleFormatDate = function(date, format) {
         .replace(/\bd\b/, toString(date.getDate()))
 }
 
-exports.show = function(req, res) {
+exports.show = function(req, res, next) {
   var visitor = req.visitor;
   var pageId = req.params.id;
 
@@ -47,7 +47,7 @@ exports.show = function(req, res) {
   var render = function(err, status) {
     if (err) {
         res.status(status || 500);
-        res.render('error', {title: err, visitor: visitor, config: config});
+        res.render('error', {title: err, visitor: visitor});
         return;
     }
     if (ready(page, parentPage, brotherPages, childPages)) {
@@ -75,8 +75,11 @@ exports.show = function(req, res) {
     if (visitor && visitor.userid === doc.userId) {
         prepareAll(visitor);
     } else {
-        User.findById(doc.userId, function(err, author){
+        User.findById(doc.userId, function(err, author) {
             mongoUtils.handleErr(err);
+            if(!author) {
+              return next(new Error('author is null'));
+            }
             if ((doc.rootId || doc.id) == author.rootPageId     // 页面私有
                      && (visitor && visitor.id) != author.id    // 访问者非作者
                     ) {
@@ -314,13 +317,13 @@ exports.edit = function(req, res) {
       if(err) console.log(err);
       if(err || !doc) {
         res.status(404);
-        res.render('error', {title: '页面不存在', visitor: visitor, config: config});
+        res.render('error', {title: '页面不存在', visitor: visitor});
         return;
       }
       var pageUserId = doc.userId;
       if (pageUserId != visitor.id) {
         res.status(403);
-        res.render('error', {title: '没有权限', visitor: visitor, config: config});
+        res.render('error', {title: '没有权限', visitor: visitor});
         return;
       }
       res.render('page-edit', {page: doc});

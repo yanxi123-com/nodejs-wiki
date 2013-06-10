@@ -30,8 +30,9 @@ if (qqLogin && qqLogin.enabled) {
           } else {
             User.create({qqUid: qqUid, email: qqUid + "@qq.connect"}, function(err, user) {
               if (err) return done(err);
-              routeUser.createRootPage(user);
-              return done(null, user);
+              routeUser.createRootPage(user, function(err, page){
+                return done(err, user);
+              });
             });
           }
         });
