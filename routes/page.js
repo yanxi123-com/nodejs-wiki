@@ -72,7 +72,9 @@ exports.show = function(req, res, next) {
         prepareAll(visitor);
     } else {
         User.findById(doc.userId, function(err, author) {
-            if (err) return next(err);
+            if (err) {
+              return next(new QiriError(err));
+            } 
             if (!author) {
               return next(new QiriError('author is null'));
             }
@@ -88,7 +90,9 @@ exports.show = function(req, res, next) {
 
   // page
   Page.findById(pageId, function(err, doc) {
-        if (err) return next(new QiriError(err));
+        if (err) {
+          return next(new QiriError(err));
+        } 
         if (!doc) {
           return next(new QiriError(404));
         }
@@ -175,7 +179,9 @@ exports.create = function(req, res, next) {
             title: title,
             content: content
         }, function(err, page) {
-            if(err) return next(err);
+            if (err) {
+              return next(new QiriError(err));
+            } 
             Page.update({_id: parentId, userId: visitor.id},
               {$push: {childIds: page.id}},
               function(err) {
@@ -211,8 +217,12 @@ exports.create = function(req, res, next) {
             userId: visitor.id
         },
         function(err, parentPage) {
-            if(err) return next(err);
-            if(!parentPage) return next(new QiriError('parentPage is null'));
+            if (err) {
+              return next(new QiriError(err));
+            } 
+            if(!parentPage) {
+              return next(new QiriError('parentPage is null'));
+            }
             rootId = parentPage.rootId || parentPage.id;
             checkTitle();
         } 
@@ -232,7 +242,9 @@ exports.remove = function(req, res, next) {
       _id: pageId,
       userId: visitor.id
     }, function(err) {
-        if(err) return next(err);
+        if (err) {
+          return next(new QiriError(err));
+        } 
         res.json({isOk: 1});
     }
   );
@@ -263,13 +275,15 @@ exports.update = function(req, res, next) {
       title: title,
       content: content
     }, function(err) {
-      if (err) return next(err);
+      if (err) {
+        return next(new QiriError(err));
+      } 
       res.json({isOk: 1});
     }
   );
 }
 
-exports.add = function(req, res) {
+exports.add = function(req, res, next) {
   var visitor = req.visitor;
   var parentId = req.params.id;
   if(!visitor) {
@@ -309,7 +323,7 @@ exports.edit = function(req, res, next) {
   );
 }
 
-exports.sort = function(req, res) {
+exports.sort = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
     res.json({isOk: 0, errMsg: "用户未登录"});
@@ -326,7 +340,9 @@ exports.sort = function(req, res) {
     }, {
       childIds: childIds
     }, function(err, page){
-      if (err) return next(err);
+      if (err) {
+        return next(new QiriError(err));
+      } 
       res.json({isOk: 1});
     }
   );

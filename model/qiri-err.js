@@ -5,15 +5,16 @@
  * MIT Licensed
  */
 
+var _ = require('underscore');
+
 /**
  * @api private
  * @inherits Error https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Error
+ * QiriError(err)
  * QiriError(msg)
  * QiriError(status)
  * QiriError(msg, status)
  */
-
-var _ = require('underscore');
 
 function QiriError() {
   this.name = 'QiriError';

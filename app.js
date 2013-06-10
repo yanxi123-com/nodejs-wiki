@@ -43,7 +43,7 @@ app.configure(function() {
 
   app.use(function(err, req, res, next) {
     if (req.xhr) {
-      res.send(200, {isOk: 0, errMsg: err.msg});
+      res.send(200, { isOk: 0, errMsg: err.getMsg() });
     } else {
       res.status(err.getStatus());
       res.render('error', { title: err.getMsg(), visitor: req.visitor });
@@ -74,7 +74,7 @@ app.post('/page/update.json', routes.page.update);
 app.post('/page/sort.json', routes.page.sort);
 app.get('/page/:id', routes.page.show);
 app.get('/page/:id/edit', routes.page.edit);
-app.post('/page/:rootPageId/setting.html', routes.user.setting);
+app.get('/page/:rootPageId/setting.html', routes.user.setting);
 
 // qq
 app.get('/auth/qq', passport.authenticate('qq'));
