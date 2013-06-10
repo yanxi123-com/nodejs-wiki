@@ -8,13 +8,13 @@
 var express = require('express')
   , config = require('./config')
   , http = require('http')
-  , path = require('path')
   , fs = require('fs')
   , passport = require('./model/passport-qiri').passport
+  , QiriError = require('./model/qiri-err')
   , routes = {
-    index: require('./routes').index,
-    user: require('./routes/user'),
-    page: require('./routes/page')
+      index: require('./routes').index,
+      user: require('./routes/user'),
+      page: require('./routes/page')
   };
 var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
 
@@ -42,6 +42,10 @@ app.configure(function() {
   app.use(require('stylus').middleware(__dirname + '/public'));
 
   app.use(function(err, req, res, next) {
+    if (err.constructor !== QiriError) {
+      console.error(err.stack);
+      return next();
+    }
     if (req.xhr) {
       res.send(200, { isOk: 0, errMsg: err.getMsg() });
     } else {
