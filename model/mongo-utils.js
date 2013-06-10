@@ -45,11 +45,3 @@ exports.getSchema = function(name) {
     return mongoSchemas[name];
 };
 
-exports.handleErr = function(err, res) {
-  if(err) {
-    console.log(err);
-  }
-  if(res) {
-    res.json({isOk: err ? 0 : 1});
-  }
-}
