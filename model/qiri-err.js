@@ -28,7 +28,6 @@ function QiriError() {
       self._status = arg;
     } else if (arg.stack) {
       console.error(arg.stack);
-      self._msg = arg.name;
     }
   });
 }
@@ -43,7 +42,7 @@ QiriError.prototype.getMsg = function() {
     if (this._status == 403) this._msg = "没有权限";
     else if (this._status == 404) this._msg = "页面不存在";
   }
-  return this._msg || "未知错误";
+  return this._msg || "内部错误";
 };
 
 QiriError.prototype.getStatus = function() {
