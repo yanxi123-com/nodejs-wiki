@@ -83,7 +83,7 @@ app.get('/auth/qq/callback', function(req, res, next) {
 // 404
 app.use(function(req, res, next){
   res.status(404);
-  res.render('error', {title: '页面不存在', visitor: req.visitor});
+  res.render('error', {title: '页面不存在', visitor: req.visitor, config: config});
 });
 
 //console.log(app.routes);

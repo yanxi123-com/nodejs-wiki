@@ -47,7 +47,7 @@ exports.show = function(req, res) {
   var render = function(err, status) {
     if (err) {
         res.status(status || 500);
-        res.render('error', {title: err, visitor: visitor});
+        res.render('error', {title: err, visitor: visitor, config: config});
         return;
     }
     if (ready(page, parentPage, brotherPages, childPages)) {
@@ -314,13 +314,13 @@ exports.edit = function(req, res) {
       if(err) console.log(err);
       if(err || !doc) {
         res.status(404);
-        res.render('error', {title: '页面不存在', visitor: visitor});
+        res.render('error', {title: '页面不存在', visitor: visitor, config: config});
         return;
       }
       var pageUserId = doc.userId;
       if (pageUserId != visitor.id) {
         res.status(403);
-        res.render('error', {title: '没有权限', visitor: visitor});
+        res.render('error', {title: '没有权限', visitor: visitor, config: config});
         return;
       }
       res.render('page-edit', {page: doc});
