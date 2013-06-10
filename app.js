@@ -41,27 +41,26 @@ app.configure(function() {
   app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
   app.use(require('stylus').middleware(__dirname + '/public'));
 
-  app.use(function(err, req, res, next){
-    console.error(err.stack);
+  app.use(function(err, req, res, next) {
     if (req.xhr) {
-      res.send(200, {isOk: 0, errMsg: err});
+      res.send(200, {isOk: 0, errMsg: err.msg});
     } else {
-      res.status(500);
-      res.render('error', { title: err, visitor: req.visitor });
+      res.status(err.getStatus());
+      res.render('error', { title: err.getMsg(), visitor: req.visitor });
     }
   });
 });
 
 // user
-app.all('/user/register.json', routes.user.register);
-app.all('/user/login.json', routes.user.login);
-app.all('/user/logout.json', routes.user.logout);
+app.post('/user/register.json', routes.user.register);
+app.post('/user/login.json', routes.user.login);
+app.post('/user/logout.json', routes.user.logout);
 
 // check login
 app.all("*", routes.user.loadUser);
 
 // user
-app.all('/user/setting.html', routes.user.setting);
+app.get('/user/setting.html', routes.user.setting);
 
 // index
 app.get('/', routes.index);
@@ -69,13 +68,13 @@ app.get('/', routes.index);
 // page
 app.get('/page/add.html', routes.page.add);
 app.get('/page/:id/add.html', routes.page.add);
-app.all('/page/add.json', routes.page.create);
-app.all('/page/remove.json', routes.page.remove);
-app.all('/page/update.json', routes.page.update);
-app.all('/page/sort.json', routes.page.sort);
+app.post('/page/add.json', routes.page.create);
+app.post('/page/remove.json', routes.page.remove);
+app.post('/page/update.json', routes.page.update);
+app.post('/page/sort.json', routes.page.sort);
 app.get('/page/:id', routes.page.show);
 app.get('/page/:id/edit', routes.page.edit);
-app.all('/page/:rootPageId/setting.html', routes.user.setting);
+app.post('/page/:rootPageId/setting.html', routes.user.setting);
 
 // qq
 app.get('/auth/qq', passport.authenticate('qq'));
@@ -97,9 +96,10 @@ app.locals({
   config: config
 });
 
-//console.log(app.routes);
+// console.log(app.routes);
 var server = http.createServer(app);
 server.setMaxListeners(100);
 server.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
+

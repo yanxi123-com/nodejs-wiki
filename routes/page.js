@@ -11,7 +11,8 @@ var _ = require('underscore'),
     mongoUtils = require('../model/mongo-utils.js'),
     wiki2html = require('../lib/wiki2html.js'),
     Page = mongoUtils.getSchema('Page'),
-    User = mongoUtils.getSchema('User');
+    User = mongoUtils.getSchema('User'),
+    QiriError = require('../model/qiri-err');
 
 var ready = function() {
   return _(arguments).every(function(arg, index) {
@@ -44,12 +45,7 @@ exports.show = function(req, res, next) {
   var pageId = req.params.id;
 
   var page, parentPage, brotherPages, childPages;
-  var render = function(err, status) {
-    if (err) {
-        res.status(status || 500);
-        res.render('error', {title: err, visitor: visitor});
-        return;
-    }
+  var render = function() {
     if (ready(page, parentPage, brotherPages, childPages)) {
       res.render('page-show', {
           config: config,
@@ -76,15 +72,14 @@ exports.show = function(req, res, next) {
         prepareAll(visitor);
     } else {
         User.findById(doc.userId, function(err, author) {
-            mongoUtils.handleErr(err);
-            if(!author) {
-              return next(new Error('author is null'));
+            if (err) return next(err);
+            if (!author) {
+              return next(new QiriError('author is null'));
             }
             if ((doc.rootId || doc.id) == author.rootPageId     // 页面私有
                      && (visitor && visitor.id) != author.id    // 访问者非作者
                     ) {
-                render('没有权限', 403);
-                return;
+                return next(new QiriError(403));
             }
             prepareAll(author);
         });
@@ -92,14 +87,10 @@ exports.show = function(req, res, next) {
   }
 
   // page
-  Page.findOne({
-      _id: pageId
-    },
-    function(err, doc) {
-        mongoUtils.handleErr(err);
-        if (err || !doc) {
-          render('页面不存在', 404);
-          return;
+  Page.findById(pageId, function(err, doc) {
+        if (err) return next(new QiriError(err));
+        if (!doc) {
+          return next(new QiriError(404));
         }
         preparePage(doc);
     }
@@ -118,11 +109,9 @@ exports.show = function(req, res, next) {
   // childPages
   var prepareChildPages = function(page) {
       Page.find({parentId: page.id}, "title", function(err, pages){
-        if(err) {
-          console.log(err);
-          render('内部错误');
-          return;
-        }
+        if (err) {
+          return next(new QiriError(err));
+        } 
         childPages = getSortedPages(pages, page.childIds);
         render();
       });
@@ -162,7 +151,7 @@ exports.show = function(req, res, next) {
   };
 };
 
-exports.create = function(req, res) {
+exports.create = function(req, res, next) {
     var visitor = req.visitor;
     if(!visitor) {
         res.json({isOk: 0, errMsg: "用户未登录"});
@@ -186,18 +175,16 @@ exports.create = function(req, res) {
             title: title,
             content: content
         }, function(err, page) {
-            mongoUtils.handleErr(err);
-            if (err) {
-              res.json({isOk: 0});
-            } else {
-              Page.update({_id: parentId, userId: visitor.id},
-                {$push: {childIds: page.id}},
-                function(err){
-                    if(err) console.log(err);
-                    res.json({isOk: 1, pageId: page.id});
-                }
-              );
-            }
+            if(err) return next(err);
+            Page.update({_id: parentId, userId: visitor.id},
+              {$push: {childIds: page.id}},
+              function(err) {
+                if (err) {
+                  return next(new QiriError(err));
+                } 
+                res.json({isOk: 1, pageId: page.id});
+              }
+            );
         });
     };
 
@@ -207,14 +194,12 @@ exports.create = function(req, res) {
               title: title
           },
           function(err, doc) {
-              if(err) {
-                  console.log(err);
-                  res.json({isOk: 0});
-                  return;
-              }
-              if(doc)
+              if (err) {
+                return next(new QiriError(err));
+              } 
+              if(doc) {
                   res.json({isOk: 0, errMsg: "同一个级别已存在同名页面"});
-              else {
+              } else {
                   createPage();
               }
             }
@@ -226,18 +211,16 @@ exports.create = function(req, res) {
             userId: visitor.id
         },
         function(err, parentPage) {
-            if(err || !parentPage) {
-                mongoUtils.handleErr(err);
-            } else {
-                rootId = parentPage.rootId || parentPage.id;
-                checkTitle();
-            }
+            if(err) return next(err);
+            if(!parentPage) return next(new QiriError('parentPage is null'));
+            rootId = parentPage.rootId || parentPage.id;
+            checkTitle();
         } 
     );
 
 };
 
-exports.remove = function(req, res) {
+exports.remove = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
     res.json({isOk: 0, errMsg: "用户未登录"});
@@ -249,17 +232,13 @@ exports.remove = function(req, res) {
       _id: pageId,
       userId: visitor.id
     }, function(err) {
-        mongoUtils.handleErr(err);
-        if (err) {
-          res.json({isOk: 0});
-        } else {
-          res.json({isOk: 1});
-        }
+        if(err) return next(err);
+        res.json({isOk: 1});
     }
   );
 }
 
-exports.update = function(req, res) {
+exports.update = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
     res.json({isOk: 0, errMsg: "用户未登录"});
@@ -283,8 +262,9 @@ exports.update = function(req, res) {
     }, {
       title: title,
       content: content
-    }, function(err){
-      mongoUtils.handleErr(err, res);
+    }, function(err) {
+      if (err) return next(err);
+      res.json({isOk: 1});
     }
   );
 }
@@ -303,7 +283,7 @@ exports.add = function(req, res) {
   });
 }
 
-exports.edit = function(req, res) {
+exports.edit = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
     res.redirect('/');
@@ -314,17 +294,15 @@ exports.edit = function(req, res) {
       _id: req.params.id
     },
     function(err, doc) {
-      if(err) console.log(err);
-      if(err || !doc) {
-        res.status(404);
-        res.render('error', {title: '页面不存在', visitor: visitor});
-        return;
+      if (err) {
+        return next(new QiriError(err));
+      } 
+      if(!doc) {
+        return next(new QiriError(404));
       }
       var pageUserId = doc.userId;
       if (pageUserId != visitor.id) {
-        res.status(403);
-        res.render('error', {title: '没有权限', visitor: visitor});
-        return;
+        return next(new QiriError(403));
       }
       res.render('page-edit', {page: doc});
     }
@@ -348,7 +326,8 @@ exports.sort = function(req, res) {
     }, {
       childIds: childIds
     }, function(err, page){
-      mongoUtils.handleErr(err, res);
+      if (err) return next(err);
+      res.json({isOk: 1});
     }
   );
 }

@@ -10,7 +10,8 @@ var _s = require('underscore.string')
   , crypto = require('crypto')
   , mongoUtils = require('../model/mongo-utils.js')
   , User = mongoUtils.getSchema('User')
-  , Page = mongoUtils.getSchema('Page');
+  , Page = mongoUtils.getSchema('Page')
+  , QiriError = require('../model/qiri-err');
 
 var getPwdMd5 = function(password) {
     var pwd = password + config.get('pwdSecret'); 
@@ -22,7 +23,6 @@ var setLoginCookie = function(res, userId) {
 }
 
 var createRootPage = function(visitor, done) {
-    done = done || function(err) {console.log(err)};
     Page.create({
         userId: visitor.id,
         parentId: visitor.id,
@@ -47,7 +47,7 @@ var createRootPage = function(visitor, done) {
 exports.setLoginCookie = setLoginCookie;
 exports.createRootPage = createRootPage;
 
-exports.login = function(req, res) {
+exports.login = function(req, res, next) {
   var email = req.param('email') || "";
   var password = req.param('password') || "";
   User.findOne({
@@ -56,26 +56,24 @@ exports.login = function(req, res) {
     }, "rootPageId",
     function(err, doc) {
       if (err) {
-        mongoUtils.handleErr(err, res);
-        return;
+        return next(new QiriError(err));
+      } 
+      if(doc) {
+        setLoginCookie(res, doc.id);
+        res.json({isOk: 1, visitor: doc});
       } else {
-        if(doc) {
-          setLoginCookie(res, doc.id);
-          res.json({isOk: 1, visitor: doc});
-        } else {
-          res.json({isOk: 0, errMsg:'邮箱不正确或者密码错误'});
-        }
+        res.json({isOk: 0, errMsg:'邮箱不正确或者密码错误'});
       }
     }
   );
 };
 
-exports.logout = function(req, res) {
+exports.logout = function(req, res, next) {
   res.clearCookie('userId');
   return res.json({isOk: 1});
 };
 
-exports.register = function(req, res) {
+exports.register = function(req, res, next) {
   var email = _s.trim(req.param('email')) || "";
   var password = _s.trim(req.param('password')) || "";
 
@@ -92,37 +90,33 @@ exports.register = function(req, res) {
       email: email,
     },
     function(err, doc) {
-      if(err) {
-        console.log(err);
-        res.json({isOk: 0});
-        return;
-      }
-      if(doc)
+      if (err) {
+        return next(new QiriError(err));
+      } 
+      if(doc) {
         res.json({isOk: 0, errMsg: "用户已存在"});
-      else {
+      } else {
         User.create({
           email: email,
           passwordMd5: getPwdMd5(password)
         }, function(err, user) {
-          mongoUtils.handleErr(err);
-          if(!err) {
-            createRootPage(user, function(err, page) {
-              if (err) {
-                mongoUtils.handleErr(err);
-                res.json({isOk: 0});
-              } else {
-                setLoginCookie(res, user.id);
-                res.json({isOk: 1, rootPageId: page.id});
-              }
-            });
-          }
+          if (err) {
+            return next(new QiriError(err));
+          } 
+          createRootPage(user, function(err, page) {
+            if (err) {
+              return next(new QiriError(err));
+            } 
+            setLoginCookie(res, user.id);
+            res.json({isOk: 1, rootPageId: page.id});
+          });
         });
       }
     }
   );
 };
 
-exports.setting = function(req, res) {
+exports.setting = function(req, res, next) {
   var visitor = req.visitor;
 
   res.render('user-setting', {
@@ -133,7 +127,9 @@ exports.setting = function(req, res) {
 exports.loadUser = function(req, res, next) {
   var userId = req.signedCookies.userId;
   User.findById(userId, function(err, doc) {
-    mongoUtils.handleErr(err);
+    if (err) {
+      return next(new QiriError(err));
+    } 
     if(doc) {
       req.visitor = doc;
     }
