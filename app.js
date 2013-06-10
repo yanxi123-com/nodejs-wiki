@@ -40,10 +40,16 @@ app.configure(function() {
   app.use(app.router);
   app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
   app.use(require('stylus').middleware(__dirname + '/public'));
-});
 
-app.configure('development', function() {
-  app.use(express.errorHandler());
+  app.use(function(err, req, res, next){
+    console.error(err.stack);
+    if (req.xhr) {
+      res.send(200, {isOk: 0, errMsg: err});
+    } else {
+      res.status(500);
+      res.render('error', { title: err, visitor: req.visitor });
+    }
+  });
 });
 
 // user

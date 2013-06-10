@@ -6,7 +6,6 @@
  */
 
 var config = {
-  env: 'development', //options: development, production
   port: 3000,
   mongodb: "mongodb://localhost/qiri?poolSize=10",
   cookieSecret: "your secret for cookie",
