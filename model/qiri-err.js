@@ -10,12 +10,8 @@ var _ = require('underscore');
 /**
  * @api private
  * @inherits Error https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Error
- * QiriError(err)
- * QiriError(msg)
- * QiriError(status)
- * QiriError(msg, status)
+ * new QiriError([msg], [status])
  */
-
 function QiriError() {
   this.name = 'QiriError';
   var self = this;
@@ -26,8 +22,6 @@ function QiriError() {
       self._msg = arg;
     } else if (arg.constructor === Number) {
       self._status = arg;
-    } else if (arg.stack) {
-      console.error(arg.stack);
     }
   });
 }
@@ -39,10 +33,18 @@ QiriError.prototype.__proto__ = Error.prototype;
 
 QiriError.prototype.getMsg = function() {
   if (!this._msg) {
-    if (this._status == 403) this._msg = "没有权限";
-    else if (this._status == 404) this._msg = "页面不存在";
+    switch(this._status) {
+      case 403:
+        this._msg = "没有权限";
+        break;
+      case 404:
+        this._msg = "页面不存在";
+        break;
+      default:
+        this._msg = "内部错误";
+    }
   }
-  return this._msg || "内部错误";
+  return this._msg;
 };
 
 QiriError.prototype.getStatus = function() {
@@ -54,3 +56,24 @@ QiriError.prototype.getStatus = function() {
  */
 module.exports = exports = QiriError;
 
+exports.qiriErrorHandler = function(err, req, res, next) {
+  if (err.constructor !== QiriError) {
+    return next(err);
+  }
+  if (req.xhr) {
+    res.send({ error: err.getMsg() });
+  } else {
+    res.status(err.getStatus());
+    res.render('error', { title: err.getMsg(), visitor: req.visitor });
+  }
+};
+
+exports.errorHandler = function(err, req, res, next) {
+  console.error(err.stack);
+  if (req.xhr) {
+    res.send({ error: "内部错误" });
+  } else {
+    res.status(500);
+    res.render('error', { title: "内部错误", visitor: req.visitor });
+  }
+};

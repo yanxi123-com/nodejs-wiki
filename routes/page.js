@@ -61,7 +61,7 @@ exports.show = function(req, res, next) {
     } else {
         User.findById(doc.userId, function(err, author) {
             if (err) {
-              return next(new QiriError(err));
+              return next(err);
             } 
             if (!author) {
               return next(new QiriError('author is null'));
@@ -79,7 +79,7 @@ exports.show = function(req, res, next) {
   // page
   Page.findById(pageId, function(err, doc) {
         if (err) {
-          return next(new QiriError(err));
+          return next(err);
         }
         if (!doc) {
           return next(new QiriError(404));
@@ -102,7 +102,7 @@ exports.show = function(req, res, next) {
   var prepareChildPages = function(page) {
       Page.find({parentId: page.id}, "title", function(err, pages){
         if (err) {
-          return next(new QiriError(err));
+          return next(err);
         } 
         childPages = getSortedPages(pages, page.childIds);
         render();
@@ -114,7 +114,7 @@ exports.show = function(req, res, next) {
       if(parentId && parentId != author.id) {
           Page.findById(parentId, "title childIds", function(err, page){
               if (err) {
-                return next(new QiriError(err));
+                return next(err);
               }
               if (!page) {
                 return next(new QiriError("找不到父页面"));
@@ -138,7 +138,7 @@ exports.show = function(req, res, next) {
             "title", 
             function(err, pages) {
               if (err) {
-                return next(new QiriError(err));
+                return next(err);
               } 
               brotherPages = getSortedPages(pages, childIds);
               render();
@@ -174,13 +174,13 @@ exports.create = function(req, res, next) {
             content: content
         }, function(err, page) {
             if (err) {
-              return next(new QiriError(err));
+              return next(err);
             } 
             Page.update({_id: parentId, userId: visitor.id},
               {$push: {childIds: page.id}},
               function(err) {
                 if (err) {
-                  return next(new QiriError(err));
+                  return next(err);
                 } 
                 res.json({pageId: page.id});
               }
@@ -195,7 +195,7 @@ exports.create = function(req, res, next) {
           },
           function(err, doc) {
               if (err) {
-                return next(new QiriError(err));
+                return next(err);
               } 
               if(doc) {
                   return next(new QiriError('同一个级别已存在同名页面'));
@@ -211,7 +211,7 @@ exports.create = function(req, res, next) {
         },
         function(err, parentPage) {
             if (err) {
-              return next(new QiriError(err));
+              return next(err);
             } 
             if(!parentPage) {
               return next(new QiriError('parentPage is null'));
@@ -235,7 +235,7 @@ exports.remove = function(req, res, next) {
       userId: visitor.id
     }, function(err) {
         if (err) {
-          return next(new QiriError(err));
+          return next(err);
         } 
         res.json({});
     }
@@ -265,7 +265,7 @@ exports.update = function(req, res, next) {
       content: content
     }, function(err) {
       if (err) {
-        return next(new QiriError(err));
+        return next(err);
       } 
       res.json({});
     }
@@ -298,7 +298,7 @@ exports.edit = function(req, res, next) {
     },
     function(err, doc) {
       if (err) {
-        return next(new QiriError(err));
+        return next(err);
       } 
       if(!doc) {
         return next(new QiriError(404));
@@ -329,7 +329,7 @@ exports.sort = function(req, res, next) {
       childIds: childIds
     }, function(err, page){
       if (err) {
-        return next(new QiriError(err));
+        return next(err);
       } 
       res.json({});
     }

@@ -56,7 +56,7 @@ exports.login = function(req, res, next) {
     },
     function(err, doc) {
       if (err) {
-        return next(new QiriError(err));
+        return next(err);
       } 
       if(doc) {
         setLoginCookie(res, doc.id);
@@ -89,7 +89,7 @@ exports.register = function(req, res, next) {
     },
     function(err, doc) {
       if (err) {
-        return next(new QiriError(err));
+        return next(err);
       } 
       if(doc) {
         return next(new QiriError('用户已存在'));
@@ -99,11 +99,11 @@ exports.register = function(req, res, next) {
         passwordMd5: getPwdMd5(password)
       }, function(err, user) {
         if (err) {
-          return next(new QiriError(err));
+          return next(err);
         } 
         createRootPage(user, function(err, page) {
           if (err) {
-            return next(new QiriError(err));
+            return next(err);
           } 
           setLoginCookie(res, user.id);
           res.json({rootPageId: page.id});
@@ -138,7 +138,7 @@ exports.loadUser = function(req, res, next) {
   var userId = req.signedCookies.userId;
   User.findById(userId, function(err, doc) {
     if (err) {
-      return next(new QiriError(err));
+      return next(err);
     } 
     if(doc) {
       req.visitor = doc;

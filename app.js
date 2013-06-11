@@ -10,7 +10,7 @@ var express = require('express')
   , http = require('http')
   , fs = require('fs')
   , passport = require('./model/passport-qiri').passport
-  , QiriError = require('./model/qiri-err')
+  , qiriError = require('./model/qiri-err')
   , routes = {
       index: require('./routes').index,
       user: require('./routes/user'),
@@ -40,18 +40,8 @@ app.configure(function() {
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
 
-  app.use(function(err, req, res, next) {
-    if (err.constructor !== QiriError) {
-      console.error(err.stack);
-      return next();
-    }
-    if (req.xhr) {
-      res.send({ error: err.getMsg() });
-    } else {
-      res.status(err.getStatus());
-      res.render('error', { title: err.getMsg(), visitor: req.visitor });
-    }
-  });
+  app.use(qiriError.qiriErrorHandler);
+  app.use(qiriError.errorHandler);
 });
 
 // user
