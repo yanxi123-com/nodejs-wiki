@@ -51,7 +51,7 @@ exports.login = function(req, res, next) {
   var email = req.param('email') || "";
   var password = req.param('password') || "";
   User.findOne({
-      email: email,
+      email: email.toLowerCase(),
       passwordMd5: getPwdMd5(password)
     }, "rootPageId",
     function(err, doc) {
@@ -85,7 +85,7 @@ exports.register = function(req, res, next) {
   }
 
   User.findOne({
-      email: email,
+      email: email.toLowerCase(),
     },
     function(err, doc) {
       if (err) {
@@ -95,7 +95,7 @@ exports.register = function(req, res, next) {
         return next(new QiriError('用户已存在'));
       }
       User.create({
-        email: email,
+        email: email.toLowerCase(),
         passwordMd5: getPwdMd5(password)
       }, function(err, user) {
         if (err) {

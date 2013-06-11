@@ -28,7 +28,7 @@ if (qqLogin && qqLogin.enabled) {
           if (user) {
             return done(null, user);
           } else {
-            User.create({qqUid: qqUid, email: qqUid + "@qq.connect"}, function(err, user) {
+            User.create({qqUid: qqUid, email: qqUid.toLowerCase() + "@qq.connect"}, function(err, user) {
               if (err) return done(err);
               routeUser.createRootPage(user, function(err, page){
                 return done(err, user);
