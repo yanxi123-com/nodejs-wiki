@@ -60,9 +60,9 @@ exports.login = function(req, res, next) {
       } 
       if(doc) {
         setLoginCookie(res, doc.id);
-        res.json({isOk: 1, visitor: doc});
+        res.json({visitor: doc});
       } else {
-        res.json({isOk: 0, errMsg:'邮箱不正确或者密码错误'});
+        return next(new QiriError('邮箱不正确或者密码错误'));
       }
     }
   );
@@ -70,7 +70,7 @@ exports.login = function(req, res, next) {
 
 exports.logout = function(req, res, next) {
   res.clearCookie('userId');
-  return res.json({isOk: 1});
+  return res.json({});
 };
 
 exports.register = function(req, res, next) {
@@ -78,12 +78,10 @@ exports.register = function(req, res, next) {
   var password = _s.trim(req.param('password')) || "";
 
   if (!email.match(/^[\w\.-]+@[\w\.-]+\.[a-z]{2,4}$/)) {
-    res.json({isOk: 0, errMsg: '邮箱不符合要求'});
-    return;
+    return next(new QiriError('邮箱不符合要求'));
   }
   if (password.length<4) {
-    res.json({isOk: 0, errMsg: '密码不能小于4个字符'});
-    return;
+    return next(new QiriError('密码不能小于4个字符'));
   }
 
   User.findOne({
@@ -94,7 +92,7 @@ exports.register = function(req, res, next) {
         return next(new QiriError(err));
       } 
       if(doc) {
-        res.json({isOk: 0, errMsg: "用户已存在"});
+        return next(new QiriError('用户已存在'));
       } else {
         User.create({
           email: email,
@@ -108,7 +106,7 @@ exports.register = function(req, res, next) {
               return next(new QiriError(err));
             } 
             setLoginCookie(res, user.id);
-            res.json({isOk: 1, rootPageId: page.id});
+            res.json({rootPageId: page.id});
           });
         });
       }

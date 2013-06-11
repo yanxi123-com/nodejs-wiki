@@ -125,8 +125,10 @@ exports.show = function(req, res, next) {
   var prepareParentPage = function(parentId, author) {
       if(parentId && parentId != author.id) {
           Page.findById(parentId, "title childIds", function(err, page){
+              if (err) {
+                return next(new QiriError(err));
+              } 
               parentPage = page;
-
               prepareBrotherPages(parentId, page.childIds, author);
           });
       } else {
@@ -144,6 +146,9 @@ exports.show = function(req, res, next) {
             }, 
             "title", 
             function(err, pages) {
+              if (err) {
+                return next(new QiriError(err));
+              } 
               brotherPages = getSortedPages(pages, childIds);
               render();
             }
@@ -158,8 +163,7 @@ exports.show = function(req, res, next) {
 exports.create = function(req, res, next) {
     var visitor = req.visitor;
     if(!visitor) {
-        res.json({isOk: 0, errMsg: "用户未登录"});
-        return;
+        return next(new QiriError('用户未登录'));
     }
   
     var parentId = req.param('parentId');
@@ -167,8 +171,7 @@ exports.create = function(req, res, next) {
     var content = _s.trim(req.param('content')) || "";
     var rootId = null;
     if (title.length<1 || title.length>50) {
-        res.json({isOk: 0, errMsg: '标题长度必须在1到50之间'});
-        return;
+        return next(new QiriError('标题长度必须在1到50之间'));
     }
 
     var createPage = function() {
@@ -188,7 +191,7 @@ exports.create = function(req, res, next) {
                 if (err) {
                   return next(new QiriError(err));
                 } 
-                res.json({isOk: 1, pageId: page.id});
+                res.json({pageId: page.id});
               }
             );
         });
@@ -204,10 +207,9 @@ exports.create = function(req, res, next) {
                 return next(new QiriError(err));
               } 
               if(doc) {
-                  res.json({isOk: 0, errMsg: "同一个级别已存在同名页面"});
-              } else {
-                  createPage();
+                  return next(new QiriError('同一个级别已存在同名页面'));
               }
+              createPage();
             }
         );
     }
@@ -233,8 +235,7 @@ exports.create = function(req, res, next) {
 exports.remove = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
-    res.json({isOk: 0, errMsg: "用户未登录"});
-    return;
+    return next(new QiriError('用户未登录'));
   }
 
   var pageId = req.param('id') || "";
@@ -245,7 +246,7 @@ exports.remove = function(req, res, next) {
         if (err) {
           return next(new QiriError(err));
         } 
-        res.json({isOk: 1});
+        res.json({});
     }
   );
 }
@@ -253,20 +254,17 @@ exports.remove = function(req, res, next) {
 exports.update = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
-    res.json({isOk: 0, errMsg: "用户未登录"});
-    return;
+    return next(new QiriError('用户未登录'));
   }
 
   var pageId = req.param('id') || "";
   var title = req.param('title') || "";
   var content = req.param('content') || "";
   if (pageId.length == 0) {
-    res.json({isOk: 0, errMsg: '文章ID错误'});
-    return;
+    return next(new QiriError('文章ID错误'));
   }
   if (title.length<1 || title.length>50) {
-    res.json({isOk: 0, errMsg: '标题长度必须在1到50之间'});
-    return;
+    return next(new QiriError('标题长度必须在1到50之间'));
   }
   Page.findOneAndUpdate({
       _id: pageId,
@@ -278,7 +276,7 @@ exports.update = function(req, res, next) {
       if (err) {
         return next(new QiriError(err));
       } 
-      res.json({isOk: 1});
+      res.json({});
     }
   );
 }
@@ -326,8 +324,7 @@ exports.edit = function(req, res, next) {
 exports.sort = function(req, res, next) {
   var visitor = req.visitor;
   if(!visitor) {
-    res.json({isOk: 0, errMsg: "用户未登录"});
-    return;
+    return next(new QiriError('用户未登录'));
   }
 
   var pageId = req.param('id') || "";
@@ -343,7 +340,7 @@ exports.sort = function(req, res, next) {
       if (err) {
         return next(new QiriError(err));
       } 
-      res.json({isOk: 1});
+      res.json({});
     }
   );
 }

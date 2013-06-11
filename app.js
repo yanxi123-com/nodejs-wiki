@@ -46,7 +46,7 @@ app.configure(function() {
       return next();
     }
     if (req.xhr) {
-      res.send(200, { isOk: 0, errMsg: err.getMsg() });
+      res.send(200, { error: err.getMsg() });
     } else {
       res.status(err.getStatus());
       res.render('error', { title: err.getMsg(), visitor: req.visitor });

@@ -48,10 +48,10 @@ var initAll = function() {
             type: 'POST',
             dataType: 'json',
             success: function(json) {
-                if (json.isOk) {
+                if (!json.error) {
                     location = '/';
                 } else {
-                    showError(json.errMsg);
+                    showError(json.error);
                 }
             }
         });
@@ -67,10 +67,10 @@ var initAll = function() {
             },
             dataType: 'json',
             success: function(json) {
-                if (json.isOk) {
+                if (!json.error) {
                     location = '/page/' + json.visitor.rootPageId;
                 } else {
-                    showError(json.errMsg, $form);
+                    showError(json.error, $form);
                 }
             }
         });
@@ -95,10 +95,10 @@ var initAll = function() {
             },
             dataType: 'json',
             success: function(json) {
-                if (json.isOk) {
+                if (!json.error) {
                     location = '/page/' + json.rootPageId;
                 } else {
-                    showError(json.errMsg, $form);
+                    showError(json.error, $form);
                 }
             }
         });
@@ -115,10 +115,10 @@ var initAll = function() {
             },
             dataType: 'json',
             success: function(json) {
-                if (json.isOk) {
+                if (!json.error) {
                     location = '/page/' + json.pageId;
                 } else {
-                    showError(json.errMsg);
+                    showError(json.error);
                 }
             }
         });
@@ -136,10 +136,10 @@ var initAll = function() {
             },
             dataType: 'json',
             success: function(json) {
-                if (json.isOk) {
+                if (!json.error) {
                     location = '/page/' + pageId;
                 } else {
-                    showError(json.errMsg);
+                    showError(json.error);
                 }
             }
         });
@@ -153,10 +153,10 @@ var initAll = function() {
             data: {id: $ele.attr('data-page-id')},
             dataType: 'json',
             success: function(json) {
-                if (json.isOk) {
+                if (!json.error) {
                     location = '/page/' + $ele.attr('data-parent-id');
                 } else {
-                    showError(json.errMsg, $form);
+                    showError(json.error, $form);
                 }
             }
         });
