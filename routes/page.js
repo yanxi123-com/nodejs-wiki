@@ -5,27 +5,15 @@
  * MIT Licensed
  */
  
-var _ = require('underscore'),
-    _s = require('underscore.string'),
-    config = require('../config'),
-    mongoUtils = require('../model/mongo-utils.js'),
-    wiki2html = require('../lib/wiki2html.js'),
-    Page = mongoUtils.getSchema('Page'),
-    User = mongoUtils.getSchema('User'),
-    QiriError = require('../model/qiri-err');
-
-var ready = function() {
-  return _(arguments).every(function(arg, index) {
-    var isDefined = ! _.isUndefined(arg);
-    if (0) {
-      console.log("arguments[" + index + "]:");
-      console.log("    arg=" + arg)
-      console.log("    typeof=" + typeof arg)
-      console.log("    isDefined=" + isDefined)
-    }
-    return isDefined;
-  });
-};
+var _ = require('underscore')
+  , _s = require('underscore.string')
+  , config = require('../config')
+  , mongoUtils = require('../model/mongo-utils.js')
+  , wiki2html = require('../lib/wiki2html.js')
+  , Page = mongoUtils.getSchema('Page')
+  , User = mongoUtils.getSchema('User')
+  , QiriError = require('../model/qiri-err')
+  , qiriUtils = require('../model/qiri-utils');
 
 var simpleFormatDate = function(date, format) {
     var toString = function(num, len) {
@@ -46,7 +34,7 @@ exports.show = function(req, res, next) {
 
   var page, parentPage, brotherPages, childPages;
   var render = function() {
-    if (ready(page, parentPage, brotherPages, childPages)) {
+    if (qiriUtils.ready(page, parentPage, brotherPages, childPages)) {
       res.render('page-show', {
           config: config,
           visitor: visitor,
@@ -92,7 +80,7 @@ exports.show = function(req, res, next) {
   Page.findById(pageId, function(err, doc) {
         if (err) {
           return next(new QiriError(err));
-        } 
+        }
         if (!doc) {
           return next(new QiriError(404));
         }
@@ -127,7 +115,10 @@ exports.show = function(req, res, next) {
           Page.findById(parentId, "title childIds", function(err, page){
               if (err) {
                 return next(new QiriError(err));
-              } 
+              }
+              if (!page) {
+                return next(new QiriError("找不到父页面"));
+              }
               parentPage = page;
               prepareBrotherPages(parentId, page.childIds, author);
           });

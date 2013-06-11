@@ -53,7 +53,7 @@ exports.login = function(req, res, next) {
   User.findOne({
       email: email.toLowerCase(),
       passwordMd5: getPwdMd5(password)
-    }, "rootPageId",
+    },
     function(err, doc) {
       if (err) {
         return next(new QiriError(err));
@@ -115,10 +115,23 @@ exports.register = function(req, res, next) {
 
 exports.setting = function(req, res, next) {
   var visitor = req.visitor;
+  var rootPages;
+  var vender = function() {
+    res.render('user-setting', {
+      visitor: visitor,
+      rootPages: rootPages
+    });
+  }
+  
+  if (visitor == null) {
+    vender();
+  } else {
+    Page.find({parentId: visitor.id}, "title", function(err, docs) {
+      rootPages = docs;
+      vender();
+    }); 
+  }
 
-  res.render('user-setting', {
-    visitor: visitor
-  });
 };
 
 exports.loadUser = function(req, res, next) {

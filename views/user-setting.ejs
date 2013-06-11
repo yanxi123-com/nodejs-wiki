@@ -22,12 +22,22 @@
 
     <% if(visitor) { %>
         <!--<%= visitor.id %>-->
-        <h2>当前用户</h2>
+        <h3>当前用户</h3>
         <%=visitor.email %><br/>
         <br/>
-        <a href="/page/<%= visitor.rootPageId %>" >我的首页</a>
-        <br/>
         <a href="#" class="logout">退出</a>
+        <h3>我的站点</h3>
+        <ul class="gray">
+        <% rootPages.forEach(function(page) { %>
+          <li><a href="/page/<%= page.id %>"><%= page.title %></a>
+            <% if(page.id == visitor.rootPageId) { %>
+              (默认首页，仅作者可见)
+            <% } else { %>
+              (公开)
+            <% } %>
+          </li>
+        <% }) %>
+        </ul>
     <% } else { %>
         <% include include/login %>
     <% } %>
