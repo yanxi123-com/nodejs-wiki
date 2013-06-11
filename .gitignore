@@ -7,7 +7,7 @@
 *.gz
 *.swp
 config.js
-main.css
+public/stylesheets/*.css
 
 pids
 logs

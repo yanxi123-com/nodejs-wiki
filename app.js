@@ -37,8 +37,8 @@ app.configure(function() {
   app.use(passport.initialize());
 
   app.use(app.router);
-  app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
   app.use(require('stylus').middleware(__dirname + '/public'));
+  app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
 
   app.use(function(err, req, res, next) {
     if (err.constructor !== QiriError) {
@@ -46,7 +46,7 @@ app.configure(function() {
       return next();
     }
     if (req.xhr) {
-      res.send(200, { error: err.getMsg() });
+      res.send({ error: err.getMsg() });
     } else {
       res.status(err.getStatus());
       res.render('error', { title: err.getMsg(), visitor: req.visitor });
