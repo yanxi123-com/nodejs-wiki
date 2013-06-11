@@ -93,23 +93,22 @@ exports.register = function(req, res, next) {
       } 
       if(doc) {
         return next(new QiriError('用户已存在'));
-      } else {
-        User.create({
-          email: email,
-          passwordMd5: getPwdMd5(password)
-        }, function(err, user) {
+      }
+      User.create({
+        email: email,
+        passwordMd5: getPwdMd5(password)
+      }, function(err, user) {
+        if (err) {
+          return next(new QiriError(err));
+        } 
+        createRootPage(user, function(err, page) {
           if (err) {
             return next(new QiriError(err));
           } 
-          createRootPage(user, function(err, page) {
-            if (err) {
-              return next(new QiriError(err));
-            } 
-            setLoginCookie(res, user.id);
-            res.json({rootPageId: page.id});
-          });
+          setLoginCookie(res, user.id);
+          res.json({rootPageId: page.id});
         });
-      }
+      });
     }
   );
 };
