@@ -176,16 +176,12 @@ var initAll = function() {
                 success: function(json) {
                 }
             });
-            //alert(idList);
-            //ui.item.parent.children.each(function(i, ele){});
-            //alert(ui.item.attr('id'));
         }
     });
 };
 
 requirejs(['jquery', 'underscore', 'jqueryui'], function($, _) {
     $( document ).on( "pagecreate", initAll);
-    requirejs(['jqm'], function() {
-    });
+    requirejs(['jqm'], function() {});
 });
 
