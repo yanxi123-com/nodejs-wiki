@@ -5,28 +5,28 @@
  * MIT Licensed
  */
  
-var mongoose = require('mongoose');
-var config = require('../config');
-var conn = mongoose.createConnection(config.get('mongodb'));
+var mongoose = require('mongoose'),
+    config = require('../config'),
+    conn = mongoose.createConnection(config.get('mongodb'));
 
 var schemas = {
-  User: {
-    email: String,
-    qqUid: String,  // used for qq connect login
-    weiboUid: String, // used for weibo connect login
-    passwordMd5: String,
-    rootPageId: String,
-    addDate: { type: Date, default: Date.now }
-  },
-  Page: {
-    userId: String,
-    title: String,
-    content: String,
-    parentId: String,
-    childIds: [String],
-    rootId: String,
-    addDate: { type: Date, default: Date.now }
-  }
+    User: {
+        email: String,
+        qqUid: String,  // used for qq connect login
+        weiboUid: String, // used for weibo connect login
+        passwordMd5: String,
+        rootPageId: String,
+        addDate: { type: Date, default: Date.now }
+    },
+    Page: {
+        userId: String,
+        title: String,
+        content: String,
+        parentId: String,
+        childIds: [String],
+        rootId: String,
+        addDate: { type: Date, default: Date.now }
+    }
 };
 
 var mongoSchemas = (function() {

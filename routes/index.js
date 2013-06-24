@@ -6,17 +6,17 @@
  */
  
 var _ = require('underscore'),
-    config = require('../config');
-var mongoUtils = require('../model/mongo-utils.js');
-var Page = mongoUtils.getSchema('Page');
+    config = require('../config'),
+    mongoUtils = require('../model/mongo-utils.js'),
+    Page = mongoUtils.getSchema('Page');
 
 exports.index = function(req, res) {
-  var visitor = req.visitor;
+    var visitor = req.visitor;
 
-  if (visitor) {
-      res.redirect('/page/' + visitor.rootPageId);
-      return;
-  } else {
-      res.redirect(config.get('defaultPage') || '/user/setting.html');
-  }
+    if (visitor) {
+        res.redirect('/page/' + visitor.rootPageId);
+        return;
+    } else {
+        res.redirect(config.get('defaultPage') || '/user/setting.html');
+    }
 };

@@ -5,43 +5,42 @@
  * MIT Licensed
  */
  
-var express = require('express')
-  , config = require('./config')
-  , http = require('http')
-  , fs = require('fs')
-  , passport = require('./model/passport-qiri').passport
-  , qiriError = require('./model/qiri-err')
-  , routes = {
-      index: require('./routes').index,
-      user: require('./routes/user'),
-      page: require('./routes/page')
-  };
-var accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'});
-
-var app = express();
+var express = require('express'),
+    config = require('./config'),
+    http = require('http'),
+    fs = require('fs'),
+    passport = require('./model/passport-qiri').passport,
+    qiriError = require('./model/qiri-err'),
+    routes = {
+        index: require('./routes').index,
+        user: require('./routes/user'),
+        page: require('./routes/page')
+    },
+    accessLogfile = fs.createWriteStream('logs/access.log', {flags: 'a'}),
+    app = express();
 
 app.configure(function() {
-  app.set('port', config.get('port'));
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
-  app.use(express.logger({
-    stream: accessLogfile,
-    // http://www.senchalabs.org/connect/middleware-logger.html
-    format: ":date :method :url :status :res[content-length] - :response-time ms :user-agent"
-  }));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.cookieParser(config.get('cookieSecret')));
-
-  app.use(passport.initialize());
-
-  app.use(app.router);
-  app.use(require('stylus').middleware(__dirname + '/public'));
-  app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
-
-  app.use(qiriError.qiriErrorHandler);
-  app.use(qiriError.errorHandler);
+    app.set('port', config.get('port'));
+    app.set('views', __dirname + '/views');
+    app.set('view engine', 'ejs');
+    app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
+    app.use(express.logger({
+        stream: accessLogfile,
+        // http://www.senchalabs.org/connect/middleware-logger.html
+        format: ":date :method :url :status :res[content-length] - :response-time ms :user-agent"
+    }));
+    app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(express.cookieParser(config.get('cookieSecret')));
+  
+    app.use(passport.initialize());
+  
+    app.use(app.router);
+    app.use(require('stylus').middleware(__dirname + '/public'));
+    app.use(express.static('public', {maxAge: 1000 * 3600 * 24 * 30}));
+  
+    app.use(qiriError.qiriErrorHandler);
+    app.use(qiriError.errorHandler);
 });
 
 // user
@@ -72,27 +71,27 @@ app.get('/page/:rootPageId/setting.html', routes.user.setting);
 // qq
 app.get('/auth/qq', passport.authenticate('qq'));
 app.get('/auth/qq/callback', function(req, res, next) {
-  passport.authenticate('qq', function(err, user, info) {
-    if (err) return next(err);
-    routes.user.setLoginCookie(res, user.id);     
-    res.redirect('/');
-  })(req, res, next);
+    passport.authenticate('qq', function(err, user, info) {
+        if (err) return next(err);
+        routes.user.setLoginCookie(res, user.id);     
+        res.redirect('/');
+    })(req, res, next);
 }); 
 
 // 404
 app.use(function(req, res, next){
-  res.status(404);
-  res.render('error', {title: '页面不存在', visitor: req.visitor});
+    res.status(404);
+    res.render('error', {title: '页面不存在', visitor: req.visitor});
 });
 
 app.locals({
-  config: config
+    config: config
 });
 
 // console.log(app.routes);
 var server = http.createServer(app);
 server.setMaxListeners(100);
 server.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + app.get('port'));
+    console.log('Express server listening on port ' + app.get('port'));
 });
 
