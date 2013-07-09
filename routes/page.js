@@ -57,7 +57,7 @@ exports.show = function(req, res, next) {
         }],
         author: ['page', function(callback, results) {
             var page = results.page;
-            if (visitor && visitor.userid === page.userId) {
+            if (visitor && visitor.id === page.userId) {
                 callback(null, visitor);
             } else {
                 User.findById(page.userId, function(err, doc) {
@@ -68,9 +68,8 @@ exports.show = function(req, res, next) {
                     if (!author) {
                         callback(new QiriError('author is null'));
                     }
-                    if ((page.rootId || page.id) == author.rootPageId     // 页面私有
-                             && (visitor && visitor.id) != author.id    // 访问者非作者
-                            ) {
+                    if ((page.rootId || page.id) == author.rootPageId) {
+                        // 页面私有
                         callback(new QiriError(403));
                     }
                     callback(null, author);
@@ -106,7 +105,7 @@ exports.show = function(req, res, next) {
                         if (err) {
                             callback(err);
                         } 
-                        callback(null, getSortedPages(pages, page.childIds));
+                        callback(null, getSortedPages(pages, parentPage.childIds));
                     }
                 );
             } else {
