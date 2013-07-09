@@ -148,68 +148,69 @@ exports.create = function(req, res, next) {
     var parentId = req.param('parentId');
     var title = _s.trim(req.param('title')) || "";
     var content = _s.trim(req.param('content')) || "";
-    var rootId = null;
     if (title.length<1 || title.length>50) {
         return next(new QiriError('标题长度必须在1到50之间'));
     }
 
-    var createPage = function() {
-        Page.create({
-                userId: visitor.id,
-                parentId: parentId,
-                rootId: rootId,
-                title: title,
-                content: content
-            }, function(err, page) {
-                if (err) {
-                    return next(err);
-                } 
-                Page.update({_id: parentId, userId: visitor.id},
-                    {$push: {childIds: page.id}},
-                    function(err) {
-                        if (err) {
-                            return next(err);
-                        } 
-                        res.json({pageId: page.id});
+    async.auto({
+        rootId: function(callback) {
+            Page.findOne({
+                    _id: parentId,
+                    userId: visitor.id
+                },
+                function(err, parentPage) {
+                    if (err) {
+                        return callback(err);
+                    } 
+                    if(!parentPage) {
+                        return callback(new QiriError('parentPage is null'));
                     }
-                );
-            }
-        );
-    };
-
-    var checkTitle = function() {
-        Page.findOne({
-                parentId: parentId,
-                title: title
-            },
-            function(err, doc) {
-                if (err) {
-                    return next(err);
+                    rootId = parentPage.rootId || parentPage.id;
+                    callback(null, rootId);
                 } 
-                if(doc) {
-                    return next(new QiriError('同一个级别已存在同名页面'));
-                }
-                createPage();
-            }
-        );
-    }
-
-    Page.findOne({
-            _id: parentId,
-            userId: visitor.id
+            );
         },
-        function(err, parentPage) {
-            if (err) {
-                return next(err);
-            } 
-            if(!parentPage) {
-                return next(new QiriError('parentPage is null'));
-            }
-            rootId = parentPage.rootId || parentPage.id;
-            checkTitle();
-        } 
-    );
+        checkTitle: function(callback) {
+            Page.findOne({
+                    parentId: parentId,
+                    title: title
+                },
+                function(err, doc) {
+                    if (err) {
+                        return callback(err);
+                    } 
+                    if(doc) {
+                        return callback(new QiriError('同一个级别已存在同名页面'));
+                    }
+                    callback();
+                }
+            );
+        },
+        newPage : ['rootId', 'checkTitle', function(callback, results) {
+            Page.create({
+                    userId: visitor.id,
+                    parentId: parentId,
+                    rootId: results.rootId,
+                    title: title,
+                    content: content
+                }, callback
+            ); 
+        }],
+        updateParentChildIds: ['newPage', function(callback, results) {
+            var page = results.newPage;
+            Page.update({_id: parentId, userId: visitor.id},
+                {$push: {childIds: page.id}},
+                callback
+            );
+        }]
+    }, function(err, results){
+        if (err) {
+            return next(err);
+        }
 
+        var page = results.newPage;
+        res.json({pageId: page.id});
+    });
 };
 
 exports.remove = function(req, res, next) {
