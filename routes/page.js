@@ -36,10 +36,10 @@ exports.show = function(req, res, next) {
         page: function(callback) {
             Page.findById(pageId, function(err, doc) {
                 if (err) {
-                    callback(err);
+                    return callback(err);
                 }
                 if (!doc) {
-                    callback(new QiriError(404));
+                    return callback(new QiriError(404));
                 }
                 doc.contentHtml = wiki2html.convert(doc.content);
                 doc.addDateFormatted = simpleFormatDate(doc.addDate, 'yyyy年M月d日');
@@ -50,7 +50,7 @@ exports.show = function(req, res, next) {
             var page = results.page;
             Page.find({parentId: page.id}, "title", function(err, pages){
                 if (err) {
-                    callback(err);
+                    return callback(err);
                 } 
                 callback(null, getSortedPages(pages, page.childIds));
             });
@@ -58,7 +58,7 @@ exports.show = function(req, res, next) {
         author: ['page', function(callback, results) {
             var page = results.page;
             if (visitor && visitor.id === page.userId) {
-                callback(null, visitor);
+                return callback(null, visitor);
             } else {
                 User.findById(page.userId, function(err, doc) {
                     if (err) {
@@ -82,10 +82,10 @@ exports.show = function(req, res, next) {
             if(page.parentId && page.parentId != author.id) {
                 Page.findById(page.parentId, "title childIds", function(err, doc){
                     if (err) {
-                        callback(err);
+                        return callback(err);
                     }
                     if (!page) {
-                        callback(new QiriError("找不到父页面"));
+                        return callback(new QiriError("找不到父页面"));
                     }
                     callback(null, doc);
                 });
@@ -103,7 +103,7 @@ exports.show = function(req, res, next) {
                     "title", 
                     function(err, pages) {
                         if (err) {
-                            callback(err);
+                            return callback(err);
                         } 
                         callback(null, getSortedPages(pages, parentPage.childIds));
                     }
