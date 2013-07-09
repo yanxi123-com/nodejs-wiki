@@ -7,13 +7,13 @@
  
 var _ = require('underscore'),
     _s = require('underscore.string'),
+    async = require('async'),
     config = require('../config'),
     mongoUtils = require('../model/mongo-utils.js'),
     wiki2html = require('../lib/wiki2html.js'),
     Page = mongoUtils.getSchema('Page'),
     User = mongoUtils.getSchema('User'),
-    QiriError = require('../model/qiri-err'),
-    qiriUtils = require('../model/qiri-utils');
+    QiriError = require('../model/qiri-err');
 
 var simpleFormatDate = function(date, format) {
     var toString = function(num, len) {
@@ -31,63 +31,104 @@ var simpleFormatDate = function(date, format) {
 exports.show = function(req, res, next) {
     var visitor = req.visitor;
     var pageId = req.params.id;
-  
-    var page, parentPage, brotherPages, childPages;
 
-    var render = function() {
-        if (qiriUtils.ready(page, parentPage, brotherPages, childPages)) {
-            res.render('page-show', {
-                config: config,
-                visitor: visitor,
-                page: page,
-                parentPage: parentPage,
-                brotherPages: brotherPages,
-                childPages: childPages,
-                isDefaultPage: ('/page/' + page.id) == config.get('defaultPage')
-            });
-        }
-    };
-  
-    var preparePage = function(doc) {
-        prepareChildPages(doc);
-        var prepareAll = function(author) {
-            prepareParentPage(doc.parentId, author);
-            doc.contentHtml = wiki2html.convert(doc.content);
-            page = doc;
-            page.addDateFormatted = simpleFormatDate(page.addDate, 'yyyy年M月d日');
-            render();
-        }
-        if (visitor && visitor.userid === doc.userId) {
-            prepareAll(visitor);
-        } else {
-            User.findById(doc.userId, function(err, author) {
+    async.auto({
+        page: function(callback) {
+            Page.findById(pageId, function(err, doc) {
                 if (err) {
-                    return next(err);
-                } 
-                if (!author) {
-                    return next(new QiriError('author is null'));
+                    callback(err);
                 }
-                if ((doc.rootId || doc.id) == author.rootPageId     // 页面私有
-                         && (visitor && visitor.id) != author.id    // 访问者非作者
-                        ) {
-                    return next(new QiriError(403));
+                if (!doc) {
+                    callback(new QiriError(404));
                 }
-                prepareAll(author);
+                doc.contentHtml = wiki2html.convert(doc.content);
+                doc.addDateFormatted = simpleFormatDate(doc.addDate, 'yyyy年M月d日');
+                callback(null, doc);
             });
-        }
-    }
-  
-    // page
-    Page.findById(pageId, function(err, doc) {
+        },
+        childPages: ['page', function(callback, results) {
+            var page = results.page;
+            Page.find({parentId: page.id}, "title", function(err, pages){
+                if (err) {
+                    callback(err);
+                } 
+                callback(null, getSortedPages(pages, page.childIds));
+            });
+        }],
+        author: ['page', function(callback, results) {
+            var page = results.page;
+            if (visitor && visitor.userid === page.userId) {
+                callback(null, visitor);
+            } else {
+                User.findById(page.userId, function(err, doc) {
+                    if (err) {
+                        callback(err);
+                    }
+                    author = doc;
+                    if (!author) {
+                        callback(new QiriError('author is null'));
+                    }
+                    if ((page.rootId || page.id) == author.rootPageId     // 页面私有
+                             && (visitor && visitor.id) != author.id    // 访问者非作者
+                            ) {
+                        callback(new QiriError(403));
+                    }
+                    callback(null, author);
+                });
+            }
+        }],
+        parentPage: ['page', 'author', function(callback, results) {
+            var page = results.page,
+                author = results.author;
+            if(page.parentId && page.parentId != author.id) {
+                Page.findById(page.parentId, "title childIds", function(err, doc){
+                    if (err) {
+                        callback(err);
+                    }
+                    if (!page) {
+                        callback(new QiriError("找不到父页面"));
+                    }
+                    callback(null, doc);
+                });
+            } else {
+                callback();
+            }
+        }],
+        brotherPages: ['parentPage', function(callback, results) {
+            var page = results.page,
+                parentPage = results.parentPage;
+            if(parentPage && parentPage.id && parentPage.id != author.id) {
+                Page.find({
+                        parentId: parentPage.id
+                    }, 
+                    "title", 
+                    function(err, pages) {
+                        if (err) {
+                            callback(err);
+                        } 
+                        callback(null, getSortedPages(pages, page.childIds));
+                    }
+                );
+            } else {
+                callback(null, []);
+            }
+        }]
+    }, function(err, results) {
         if (err) {
-          return next(err);
+            return next(err);
         }
-        if (!doc) {
-          return next(new QiriError(404));
-        }
-        preparePage(doc);
+
+        res.render('page-show', {
+            config: config,
+            visitor: visitor,
+            page: results.page,
+            parentPage: results.parentPage,
+            brotherPages: results.brotherPages,
+            childPages: results.childPages,
+            isDefaultPage: ('/page/' + results.page.id) == config.get('defaultPage')
+        });
     });
-   
+
     var getSortedPages = function(pages, childIds) {
         var childOrderMap = {};
         _(childIds || []).each(function(childId, index) {
@@ -97,59 +138,7 @@ exports.show = function(req, res, next) {
             return childOrderMap[page.id];
         });
     }
-   
-    // childPages
-    var prepareChildPages = function(page) {
-        Page.find({parentId: page.id}, "title", function(err, pages){
-            if (err) {
-                return next(err);
-            } 
-            childPages = getSortedPages(pages, page.childIds);
-            render();
-        });
-    }
-  
-    // parentPage
-    var prepareParentPage = function(parentId, author) {
-        if(parentId && parentId != author.id) {
-            Page.findById(parentId, "title childIds", function(err, page){
-                if (err) {
-                    return next(err);
-                }
-                if (!page) {
-                    return next(new QiriError("找不到父页面"));
-                }
-                parentPage = page;
-                prepareBrotherPages(parentId, page.childIds, author);
-            });
-        } else {
-            parentPage = {};
-            brotherPages = [];
-            render();
-        }
-    };
-  
-    // brotherPages
-    var prepareBrotherPages = function(parentId, childIds, author) {
-        if(parentId && parentId != author.id) {
-            Page.find({
-                    parentId: parentId
-                }, 
-                "title", 
-                function(err, pages) {
-                    if (err) {
-                        return next(err);
-                    } 
-                    brotherPages = getSortedPages(pages, childIds);
-                    render();
-                }
-            );
-        } else {
-            brotherPages = [];
-            render();
-        }
-    };
-};
+}
 
 exports.create = function(req, res, next) {
     var visitor = req.visitor;
