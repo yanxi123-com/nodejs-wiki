@@ -16,6 +16,7 @@
     "underscore.string": "*",
     "connect": "*",
     "passport": "*",
-    "passport-oauth": "*"
+    "passport-oauth": "*",
+    "async": "*"
   }
 }
