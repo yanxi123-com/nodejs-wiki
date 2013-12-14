@@ -6,12 +6,16 @@
 *.pid
 *.gz
 *.swp
-config.js
-public/stylesheets/*.css
 
 pids
 logs
 results
 node_modules
-
 npm-debug.log
+
+/var
+.project
+.settings
+config.js
+*.md.html
+public/stylesheets/*.css
